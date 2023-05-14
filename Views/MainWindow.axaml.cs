@@ -1,6 +1,4 @@
 using Avalonia.Controls;
-using System.Threading.Tasks;
-using System;
 using Avalonia.Interactivity;
 using AvaloniaApplicationMVVM.ViewModels;
 
@@ -8,17 +6,23 @@ namespace AvaloniaApplicationMVVM.Views
 {
     public partial class MainWindow : Window
     {
+        #region Public Constructors
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = new MainWindowViewModel();
         }
 
+        #endregion Public Constructors
+
+        #region Private Methods
+
         private async void btn_OnClickAsync(object sender, RoutedEventArgs e)
         {
             // create a file dialog instance
             var dialog = new OpenFileDialog();
-            dialog.AllowMultiple = true; 
+            dialog.AllowMultiple = true;
 
             // show the file dialog
             var result = await dialog.ShowAsync(this);
@@ -35,5 +39,7 @@ namespace AvaloniaApplicationMVVM.Views
             //    Console.WriteLine("No folder was selected.");
             //}
         }
+
+        #endregion Private Methods
     }
 }
