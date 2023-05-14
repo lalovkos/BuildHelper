@@ -1,4 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using Avalonia.Controls;
+using Avalonia.Threading;
+using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -7,28 +10,6 @@ namespace AvaloniaApplicationMVVM.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         public string Greeting => "Welcome to Avalonia!";
-
-        public async void btn_OnClickAsync()
-        {
-            //// create a file dialog instance
-            //var dialog = new OpenFolderDialog();
-
-            //// show the file dialog
-            //var result = await dialog.ShowAsync();
-            await Task.Delay(1000);
-            //// check if a folder was selected
-            //if (!string.IsNullOrEmpty(result))
-            //{
-            //    // do something with the selected folder
-            //    Console.WriteLine($"Selected folder: {result}");
-            //}
-            //else
-            //{
-            //    // no folder was selected
-            //    Console.WriteLine("No folder was selected.");
-            //}
-        }
-
 
         public ObservableCollection<Node> Items { get; }
         public ObservableCollection<Node> SelectedItems { get; }

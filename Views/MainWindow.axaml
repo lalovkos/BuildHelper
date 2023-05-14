@@ -44,7 +44,7 @@
 					</TreeDataTemplate>
 				</TreeView.ItemTemplate>
 			</TreeView>
-			<Button Width="160" Command="{Binding btn_OnClickAsync}">My Button</Button>
+			<Button Width="160" Click="btn_OnClickAsync">My Button</Button>
 		</StackPanel>
 		
 	</Grid>

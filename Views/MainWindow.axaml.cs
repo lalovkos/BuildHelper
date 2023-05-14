@@ -1,4 +1,8 @@
 using Avalonia.Controls;
+using System.Threading.Tasks;
+using System;
+using Avalonia.Interactivity;
+using AvaloniaApplicationMVVM.ViewModels;
 
 namespace AvaloniaApplicationMVVM.Views
 {
@@ -7,6 +11,29 @@ namespace AvaloniaApplicationMVVM.Views
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainWindowViewModel();
+        }
+
+        private async void btn_OnClickAsync(object sender, RoutedEventArgs e)
+        {
+            // create a file dialog instance
+            var dialog = new OpenFileDialog();
+            dialog.AllowMultiple = true; 
+
+            // show the file dialog
+            var result = await dialog.ShowAsync(this);
+
+            //// check if a folder was selected
+            //if (!string.IsNullOrEmpty(result))
+            //{
+            //    // do something with the selected folder
+            //    Console.WriteLine($"Selected folder: {result}");
+            //}
+            //else
+            //{
+            //    // no folder was selected
+            //    Console.WriteLine("No folder was selected.");
+            //}
         }
     }
 }
