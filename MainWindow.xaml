@@ -5,8 +5,58 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BuilderHelperOnWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="720" Width="1080">
     <Grid>
-        
+        <Grid HorizontalAlignment="Left" Margin="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="480"></ColumnDefinition>
+                <ColumnDefinition Width="480"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="311.662"></RowDefinition>
+                <RowDefinition Height="308.338"/>
+            </Grid.RowDefinitions>
+
+            <DockPanel Grid.Row="0">
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+                <CheckBox Content="Col2Row0" Margin="2,2,2,2"/>
+            </DockPanel>
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.RowSpan="2">
+                <DataGrid ColumnWidth="*" ItemsSource="{Binding SelectedPaths}" Height="580" CanUserAddRows="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Width="10">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Click="ChangeText">-</Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <DockPanel HorizontalAlignment="Left">
+                    <Button Click="btn_OnClickAsync" Content="Add source files"/>
+                </DockPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
+                <TreeView ItemsSource="{Binding Items}" Height="580">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Subfolders}">
+                            <TextBlock Text="{Binding strNodeText}"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+                <DockPanel HorizontalAlignment="Left">
+                    <Button Click="btn_OnClickAsync" Content="Add target folders"/>
+                </DockPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
