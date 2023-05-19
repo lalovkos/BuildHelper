@@ -1,9 +1,9 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 
 namespace BuilderHelperOnWPF
 {
@@ -12,6 +12,41 @@ namespace BuilderHelperOnWPF
         public string Path { get; set; }
         public string Name { get; set; }
         public DateTime Time { get; set; }
+    }
+
+    public class Node
+    {
+
+        public Node(string strFullPath, Node parent = null)
+        {
+            StrFullPath = strFullPath;
+            Parent = parent;
+            StrNodeText = Path.GetFileName(strFullPath);
+            Subfolders = SetSubfolders(StrFullPath, this);
+        }
+
+        public string StrFullPath { get; }
+        public string StrNodeText { get; }
+        public ObservableCollection<Node> Subfolders { get; set; }
+        public Node Parent { get; set; }
+
+        private ObservableCollection<Node> SetSubfolders(string folderPath, Node parent = null)
+        {
+            ObservableCollection<Node> subfolders = new ObservableCollection<Node>();
+            string[] subdirs = Directory.GetDirectories(folderPath, "*", SearchOption.TopDirectoryOnly);
+
+            foreach (string dir in subdirs)
+            {
+                Node thisnode = new Node(dir, parent);
+                if (Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly).Length > 0)
+                {
+                    thisnode.Subfolders = SetSubfolders(dir, this);
+                }
+                subfolders.Add(thisnode);
+            }
+
+            return subfolders;
+        }
     }
 
     /// <summary>
@@ -29,7 +64,46 @@ namespace BuilderHelperOnWPF
 
         #endregion Public Constructors
 
-        private void btn_OnClickAsync(object sender, RoutedEventArgs e)
+
+        private void RemoveSourceRow(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var button = sender as System.Windows.Controls.Button;
+                ((MainWindowViewModel)DataContext).SelectedPaths.Remove((FileToCopyInfo)button.DataContext);
+            }
+            catch (Exception ex)
+            {
+                var i = ex;
+            }
+        }
+
+        private void RemoveTargetRow(object sender, RoutedEventArgs e)
+        {
+            try 
+            {
+                var button = sender as System.Windows.Controls.Button;
+                ((Node)button.DataContext).Parent.Subfolders.Remove((Node)button.DataContext);
+            }
+            catch(Exception ex) 
+            {
+                var i = ex;
+            }
+        }
+
+        private void AddTargetFolders(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as MainWindowViewModel;
+            if (viewModel == null) throw new InvalidDataException();
+
+            using (var dialog = new FolderBrowserDialog())
+            {
+                DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK) viewModel.Items.Add(new Node(dialog.SelectedPath));
+            }
+        }
+
+        private void AddSourceFiles(object sender, RoutedEventArgs e)
         {
             var viewModel = DataContext as MainWindowViewModel;
             if (viewModel == null) throw new InvalidDataException();
@@ -42,7 +116,7 @@ namespace BuilderHelperOnWPF
 
             foreach (var file in dialog.FileNames)
             {
-                viewModel.SelectedPaths.Add(new FileToCopyInfo() {  Name = Path.GetFileName(file), Path = file, Time = File.GetLastWriteTime(file)});
+                viewModel.SelectedPaths.Add(new FileToCopyInfo() { Name = Path.GetFileName(file), Path = file, Time = File.GetLastWriteTime(file) });
             }
 
             //// check if a folder was selected
@@ -57,16 +131,6 @@ namespace BuilderHelperOnWPF
             //    Console.WriteLine("No folder was selected.");
             //}
         }
-
-        private void ChangeText(object sender, RoutedEventArgs e)
-        {
-            try 
-            {
-                var button = sender as Button;
-                ((MainWindowViewModel)DataContext).SelectedPaths.Remove((FileToCopyInfo)button.DataContext);
-            }
-            catch { }
-        }
     }
     public class MainWindowViewModel
     {
@@ -80,7 +144,6 @@ namespace BuilderHelperOnWPF
             SelectedItems = new ObservableCollection<Node>();
 
             Node rootNode = new Node(strFolder);
-            rootNode.Subfolders = GetSubfolders(strFolder);
 
             Items.Add(rootNode);
         }
@@ -100,52 +163,9 @@ namespace BuilderHelperOnWPF
 
         #region Public Methods
 
-        public ObservableCollection<Node> GetSubfolders(string strPath)
-        {
-            ObservableCollection<Node> subfolders = new ObservableCollection<Node>();
-            string[] subdirs = Directory.GetDirectories(strPath, "*", SearchOption.TopDirectoryOnly);
-
-            foreach (string dir in subdirs)
-            {
-                Node thisnode = new Node(dir);
-
-                if (Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly).Length > 0)
-                {
-                    thisnode.Subfolders = new ObservableCollection<Node>();
-
-                    thisnode.Subfolders = GetSubfolders(dir);
-                }
-
-                subfolders.Add(thisnode);
-            }
-
-            return subfolders;
-        }
-
         #endregion Public Methods
 
         #region Public Classes
-
-        public class Node
-        {
-            #region Public Constructors
-
-            public Node(string _strFullPath)
-            {
-                strFullPath = _strFullPath;
-                strNodeText = System.IO.Path.GetFileName(_strFullPath);
-            }
-
-            #endregion Public Constructors
-
-            #region Public Properties
-
-            public string strFullPath { get; }
-            public string strNodeText { get; }
-            public ObservableCollection<Node> Subfolders { get; set; }
-
-            #endregion Public Properties
-        }
 
         #endregion Public Classes
     }

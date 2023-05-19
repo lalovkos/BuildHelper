@@ -34,14 +34,14 @@
                         <DataGridTemplateColumn Width="10">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Click="ChangeText">-</Button>
+                                    <Button Click="RemoveSourceRow">-</Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 <DockPanel HorizontalAlignment="Left">
-                    <Button Click="btn_OnClickAsync" Content="Add source files"/>
+                    <Button Click="AddSourceFiles" Content="Add source files"/>
                 </DockPanel>
             </StackPanel>
 
@@ -49,12 +49,15 @@
                 <TreeView ItemsSource="{Binding Items}" Height="580">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Subfolders}">
-                            <TextBlock Text="{Binding strNodeText}"/>
+                            <DockPanel>
+                                <Button Click="RemoveTargetRow">-</Button>
+                                <TextBlock Text="{Binding StrNodeText}"/>
+                            </DockPanel>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
                 <DockPanel HorizontalAlignment="Left">
-                    <Button Click="btn_OnClickAsync" Content="Add target folders"/>
+                    <Button Click="AddTargetFolders" Content="Add target folders"/>
                 </DockPanel>
             </StackPanel>
         </Grid>
