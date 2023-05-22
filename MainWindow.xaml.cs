@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Data;
 using System.IO;
 using System.Windows;
 using System.Windows.Forms;
@@ -9,44 +8,13 @@ namespace BuilderHelperOnWPF
 {
     public class FileToCopyInfo
     {
-        public string Path { get; set; }
+        #region Public Properties
+
         public string Name { get; set; }
+        public string Path { get; set; }
         public DateTime Time { get; set; }
-    }
 
-    public class Node
-    {
-
-        public Node(string strFullPath, Node parent = null)
-        {
-            StrFullPath = strFullPath;
-            Parent = parent;
-            StrNodeText = Path.GetFileName(strFullPath);
-            Subfolders = SetSubfolders(StrFullPath, this);
-        }
-
-        public string StrFullPath { get; }
-        public string StrNodeText { get; }
-        public ObservableCollection<Node> Subfolders { get; set; }
-        public Node Parent { get; set; }
-
-        private ObservableCollection<Node> SetSubfolders(string folderPath, Node parent = null)
-        {
-            ObservableCollection<Node> subfolders = new ObservableCollection<Node>();
-            string[] subdirs = Directory.GetDirectories(folderPath, "*", SearchOption.TopDirectoryOnly);
-
-            foreach (string dir in subdirs)
-            {
-                Node thisnode = new Node(dir, parent);
-                if (Directory.GetDirectories(dir, "*", SearchOption.TopDirectoryOnly).Length > 0)
-                {
-                    thisnode.Subfolders = SetSubfolders(dir, this);
-                }
-                subfolders.Add(thisnode);
-            }
-
-            return subfolders;
-        }
+        #endregion Public Properties
     }
 
     /// <summary>
@@ -64,30 +32,23 @@ namespace BuilderHelperOnWPF
 
         #endregion Public Constructors
 
+        #region Private Methods
 
-        private void RemoveSourceRow(object sender, RoutedEventArgs e)
+        private void AddSourceFiles(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var button = sender as System.Windows.Controls.Button;
-                ((MainWindowViewModel)DataContext).SelectedPaths.Remove((FileToCopyInfo)button.DataContext);
-            }
-            catch (Exception ex)
-            {
-                var i = ex;
-            }
-        }
+            var viewModel = DataContext as MainWindowViewModel;
+            if (viewModel == null) throw new InvalidDataException();
 
-        private void RemoveTargetRow(object sender, RoutedEventArgs e)
-        {
-            try 
+            var dialog = new OpenFileDialog();
+            dialog.Multiselect = true;
+            var result = dialog.ShowDialog();
+            if (result != System.Windows.Forms.DialogResult.OK) return;
+
+            foreach (var file in dialog.FileNames)
             {
-                var button = sender as System.Windows.Controls.Button;
-                ((Node)button.DataContext).Parent.Subfolders.Remove((Node)button.DataContext);
-            }
-            catch(Exception ex) 
-            {
-                var i = ex;
+                var newFileInfo = new FileToCopyInfo() { Name = Path.GetFileName(file), Path = file, Time = File.GetLastWriteTime(file) };
+                viewModel.SelectedPaths.Add(newFileInfo);
+                viewModel.FindFileInTargetFolders(newFileInfo.Name);
             }
         }
 
@@ -99,74 +60,147 @@ namespace BuilderHelperOnWPF
             using (var dialog = new FolderBrowserDialog())
             {
                 DialogResult result = dialog.ShowDialog();
-                if (result == System.Windows.Forms.DialogResult.OK) viewModel.Items.Add(new Node(dialog.SelectedPath));
+                if (result == System.Windows.Forms.DialogResult.OK) viewModel.TargetFolders.Add(new Node(dialog.SelectedPath));
             }
         }
 
-        private void AddSourceFiles(object sender, RoutedEventArgs e)
+        private void RemoveSourceRow(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as MainWindowViewModel;
-            if (viewModel == null) throw new InvalidDataException();
-
-            // create a file dialog instance
-            var dialog = new OpenFileDialog();
-            dialog.Multiselect = true;
-            dialog.ShowDialog();
-
-
-            foreach (var file in dialog.FileNames)
+            try
             {
-                viewModel.SelectedPaths.Add(new FileToCopyInfo() { Name = Path.GetFileName(file), Path = file, Time = File.GetLastWriteTime(file) });
+                var button = sender as System.Windows.Controls.Button;
+                ((MainWindowViewModel)DataContext).SelectedPaths.Remove((FileToCopyInfo)button.DataContext);
             }
-
-            //// check if a folder was selected
-            //if (!string.IsNullOrEmpty(result))
-            //{
-            //    // do something with the selected folder
-            //    Console.WriteLine($"Selected folder: {result}");
-            //}
-            //else
-            //{
-            //    // no folder was selected
-            //    Console.WriteLine("No folder was selected.");
-            //}
+            catch (Exception)
+            {
+            }
         }
+
+        private void RemoveTargetRow(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var button = sender as System.Windows.Controls.Button;
+                var node = (Node)button.DataContext;
+                if (node.Parent == null)
+                {
+                    ((MainWindowViewModel)DataContext).TargetFolders.Remove(node);
+                }
+                else
+                {
+                    node.Parent.Children.Remove((Node)button.DataContext);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        #endregion Private Methods
     }
+
     public class MainWindowViewModel
     {
         #region Public Constructors
 
         public MainWindowViewModel()
         {
-            strFolder = @"C:\Users\engineer\source\repos"; // EDIT THIS FOR AN EXISTING FOLDER
+            strFolder = @"C:\Users\engineer\source\repos";
 
-            Items = new ObservableCollection<Node>();
+            TargetFolders = new ObservableCollection<Node>();
             SelectedItems = new ObservableCollection<Node>();
+            SelectedPaths = new ObservableCollection<FileToCopyInfo>();
+            TargetFilesFullPaths = new ObservableCollection<string>();
 
             Node rootNode = new Node(strFolder);
 
-            Items.Add(rootNode);
+            TargetFolders.Add(rootNode);
         }
 
         #endregion Public Constructors
 
         #region Public Properties
 
-        public ObservableCollection<FileToCopyInfo> SelectedPaths { get; set; } = new ObservableCollection<FileToCopyInfo>();
-        public string Greeting => "Welcome to Avalonia!";
-
-        public ObservableCollection<Node> Items { get; }
         public ObservableCollection<Node> SelectedItems { get; }
+        public ObservableCollection<FileToCopyInfo> SelectedPaths { get; set; }
         public string strFolder { get; set; }
+        public ObservableCollection<string> TargetFilesFullPaths { get; set; }
+        public ObservableCollection<Node> TargetFolders { get; }
 
         #endregion Public Properties
 
         #region Public Methods
 
+        public void FindFileInNode(Node node, string fileName)
+        {
+            if (node.IsFile)
+            {
+                if (node.StrNodeText == fileName) TargetFilesFullPaths.Add(node.StrFullPath);
+            }
+            else
+            {
+                foreach (var subfolder in node.Children)
+                {
+                    FindFileInNode(subfolder, fileName);
+                }
+            }
+        }
+
+        public void FindFileInTargetFolders(string fileName)
+        {
+            foreach (var targetFolder in TargetFolders)
+            {
+                FindFileInNode(targetFolder, fileName);
+            }
+        }
+
         #endregion Public Methods
+    }
 
-        #region Public Classes
+    public class Node
+    {
+        #region Public Constructors
 
-        #endregion Public Classes
+        public Node(string strFullPath, Node parent = null, bool isFile = false)
+        {
+            StrFullPath = strFullPath;
+            Parent = parent;
+            StrNodeText = Path.GetFileName(strFullPath);
+            if (!isFile) SetSubfolders(StrFullPath, this);
+            IsFile = isFile;
+        }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
+        public ObservableCollection<Node> Children { get; set; }
+        public bool IsFile { get; }
+        public Node Parent { get; set; }
+        public string StrFullPath { get; }
+        public string StrNodeText { get; }
+
+        #endregion Public Properties
+
+        #region Private Methods
+
+        private void SetSubfolders(string folderPath, Node parent = null)
+        {
+            Children = new ObservableCollection<Node>();
+
+            var dirInfo = new DirectoryInfo(folderPath);
+
+            foreach (var dir in dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
+            {
+                Children.Add(new Node(dir.FullName, parent));
+            }
+
+            foreach (var file in dirInfo.GetFiles("*", SearchOption.TopDirectoryOnly))
+            {
+                Children.Add(new Node(file.FullName, parent, true));
+            }
+        }
+
+        #endregion Private Methods
     }
 }

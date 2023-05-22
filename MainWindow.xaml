@@ -46,9 +46,9 @@
             </StackPanel>
 
             <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
-                <TreeView ItemsSource="{Binding Items}" Height="580">
+                <TreeView ItemsSource="{Binding TargetFolders}" Height="580">
                     <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Subfolders}">
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <DockPanel>
                                 <Button Click="RemoveTargetRow">-</Button>
                                 <TextBlock Text="{Binding StrNodeText}"/>
