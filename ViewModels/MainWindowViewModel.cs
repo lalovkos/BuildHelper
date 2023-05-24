@@ -2,26 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace BuilderHelperOnWPF.ViewModels
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         #region Public Constructors
 
         public MainWindowViewModel()
         {
-            StrFolder = @"C:\Users\engineer\source\repos";
-
             TargetFolders = new ObservableCollection<Node>();
             SelectedItems = new ObservableCollection<Node>();
             SelectedPaths = new ObservableCollection<FileToCopyInfo>();
-            TargetFilesFullPaths = new ObservableCollection<string>();
-
-            Node rootNode = new Node(StrFolder);
-
-            TargetFolders.Add(rootNode);
+            TargetFilesFullPaths = new ObservableCollection<TargetFileInfo>();
+            CommandLineText = "";
         }
 
         #endregion Public Constructors
@@ -30,9 +29,19 @@ namespace BuilderHelperOnWPF.ViewModels
 
         public ObservableCollection<Node> SelectedItems { get; }
         public ObservableCollection<FileToCopyInfo> SelectedPaths { get; set; }
-        public string StrFolder { get; set; }
-        public ObservableCollection<string> TargetFilesFullPaths { get; set; }
+        public ObservableCollection<TargetFileInfo> TargetFilesFullPaths { get; set; }
         public ObservableCollection<Node> TargetFolders { get; }
+        public string CommandLineText { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        // This method is called by the Set accessor of each property.  
+        // The CallerMemberName attribute that is applied to the optional propertyName  
+        // parameter causes the property name of the caller to be substituted as an argument.  
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         #endregion Public Properties
 
@@ -42,7 +51,7 @@ namespace BuilderHelperOnWPF.ViewModels
         {
             if (node.IsFile)
             {
-                if (node.StrNodeText == fileName) TargetFilesFullPaths.Add(node.StrFullPath);
+                if (node.StrNodeText == fileName) TargetFilesFullPaths.Add(new TargetFileInfo(node.StrFullPath));
             }
             else
             {
@@ -80,6 +89,7 @@ namespace BuilderHelperOnWPF.ViewModels
             foreach (var file in fileNames)
             {
                 TargetFolders.Add(new Node(file));
+                FindFileInTargetFolders(file);
             }
         }
 
@@ -90,7 +100,7 @@ namespace BuilderHelperOnWPF.ViewModels
 
         internal void RemoveTargetPath(object dataContext)
         {
-            TargetFilesFullPaths.Remove((string)dataContext);
+            TargetFilesFullPaths.Remove((TargetFileInfo)dataContext);
         }
 
         internal void RemoveTargetRow(object nodeDataContext)
@@ -104,6 +114,12 @@ namespace BuilderHelperOnWPF.ViewModels
             {
                 node.Parent.Children.Remove(node);
             }
+        }
+
+        public void GenerateCommandLine() 
+        {
+            CommandLineText = CommandLineHelper.GenerateCommandLineString(new CommandLineSettings(SelectedPaths.ToList(), TargetFilesFullPaths.ToList()));
+            NotifyPropertyChanged("CommandLineText");
         }
 
         #endregion Internal Methods

@@ -95,8 +95,12 @@
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Margin="4">
+                        <TextBlock Text="{Binding CommandLineText}" IsEnabled="True" Width="530" Height="574"/>
                         <DockPanel HorizontalAlignment="Left">
-                            <Button Click="AddSourceFiles" Content="Add source files" />
+                            <Button Click="GenerateCommandLine" Content="Generate cmd.exe script" />
                         </DockPanel>
                     </StackPanel>
                 </Grid>

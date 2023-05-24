@@ -85,6 +85,13 @@ namespace BuilderHelperOnWPF
             }
         }
 
+
+
         #endregion Private Methods
+
+        private void GenerateCommandLine(object sender, RoutedEventArgs e)
+        {
+            _viewModel.GenerateCommandLine();
+        }
     }
 }

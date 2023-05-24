@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>BuilderHelperOnWPF.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -75,6 +78,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Models\CommandLineHelper.cs" />
+    <Compile Include="Models\TargetFileInfo.cs" />
     <Compile Include="Views\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
