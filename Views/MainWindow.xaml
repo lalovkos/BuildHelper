@@ -96,9 +96,12 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </StackPanel>
-
+                    
                     <StackPanel Grid.Column="1" Margin="4">
-                        <TextBlock Text="{Binding CommandLineText}" IsEnabled="True" Width="530" Height="574" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding CommandLineText}" IsEnabled="True" Width="530" Height="544" FontSize="12" />
+                            <Button DockPanel.Dock="Right" Click="CopyAllToClipBoard" Width="20" Height="20" Margin="-50,-520,0,0">C</Button>
+                        </StackPanel>
                         <DockPanel HorizontalAlignment="Left">
                             <Button Click="GenerateCommandLine" Content="Generate cmd.exe script" />
                         </DockPanel>

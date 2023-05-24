@@ -96,5 +96,10 @@ namespace BuilderHelperOnWPF
         }
 
         #endregion Private Methods
+
+        private void CopyAllToClipBoard(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(_viewModel.CommandLineText);
+        }
     }
 }
