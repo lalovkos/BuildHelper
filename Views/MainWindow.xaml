@@ -82,7 +82,7 @@
                         <ColumnDefinition Width="530"></ColumnDefinition>
                         <ColumnDefinition Width="530"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    
+
                     <StackPanel Grid.Column="0" Margin="4">
                         <DataGrid ColumnWidth="*" ItemsSource="{Binding TargetFilesFullPaths}" CanUserAddRows="False" IsReadOnly="True" Height="574">
                             <DataGrid.Columns>
@@ -96,9 +96,9 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Column="1" Margin="4">
-                        <TextBlock Text="{Binding CommandLineText}" IsEnabled="True" Width="530" Height="574"/>
+                        <TextBlock Text="{Binding CommandLineText}" IsEnabled="True" Width="530" Height="574" />
                         <DockPanel HorizontalAlignment="Left">
                             <Button Click="GenerateCommandLine" Content="Generate cmd.exe script" />
                         </DockPanel>

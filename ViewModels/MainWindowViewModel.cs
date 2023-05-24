@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BuilderHelperOnWPF.ViewModels
 {
@@ -25,23 +24,19 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #endregion Public Constructors
 
+        #region Public Events
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion Public Events
+
         #region Public Properties
 
+        public string CommandLineText { get; set; }
         public ObservableCollection<Node> SelectedItems { get; }
         public ObservableCollection<FileToCopyInfo> SelectedPaths { get; set; }
         public ObservableCollection<TargetFileInfo> TargetFilesFullPaths { get; set; }
         public ObservableCollection<Node> TargetFolders { get; }
-        public string CommandLineText { get; set; }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        // This method is called by the Set accessor of each property.  
-        // The CallerMemberName attribute that is applied to the optional propertyName  
-        // parameter causes the property name of the caller to be substituted as an argument.  
-        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         #endregion Public Properties
 
@@ -68,6 +63,12 @@ namespace BuilderHelperOnWPF.ViewModels
             {
                 FindFileInNode(targetFolder, fileName);
             }
+        }
+
+        public void GenerateCommandLine()
+        {
+            CommandLineText = CommandLineHelper.GenerateCommandLineString(new CommandLineSettings(SelectedPaths.ToList(), TargetFilesFullPaths.ToList()));
+            NotifyPropertyChanged("CommandLineText");
         }
 
         #endregion Public Methods
@@ -116,12 +117,18 @@ namespace BuilderHelperOnWPF.ViewModels
             }
         }
 
-        public void GenerateCommandLine() 
+        #endregion Internal Methods
+
+        #region Private Methods
+
+        // This method is called by the Set accessor of each property.
+        // The CallerMemberName attribute that is applied to the optional propertyName
+        // parameter causes the property name of the caller to be substituted as an argument.
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
-            CommandLineText = CommandLineHelper.GenerateCommandLineString(new CommandLineSettings(SelectedPaths.ToList(), TargetFilesFullPaths.ToList()));
-            NotifyPropertyChanged("CommandLineText");
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        #endregion Internal Methods
+        #endregion Private Methods
     }
 }

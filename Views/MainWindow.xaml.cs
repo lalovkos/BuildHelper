@@ -1,7 +1,6 @@
 ﻿using BuilderHelperOnWPF.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.IO;
 using System.Windows;
 
 namespace BuilderHelperOnWPF
@@ -11,8 +10,14 @@ namespace BuilderHelperOnWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        #region Public Constructors
+        #region Private Fields
+
         private readonly MainWindowViewModel _viewModel;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public MainWindow()
         {
             InitializeComponent();
@@ -54,6 +59,11 @@ namespace BuilderHelperOnWPF
             }
         }
 
+        private void GenerateCommandLine(object sender, RoutedEventArgs e)
+        {
+            _viewModel.GenerateCommandLine();
+        }
+
         private void RemoveSourceRow(object sender, RoutedEventArgs e)
         {
             try
@@ -85,13 +95,6 @@ namespace BuilderHelperOnWPF
             }
         }
 
-
-
         #endregion Private Methods
-
-        private void GenerateCommandLine(object sender, RoutedEventArgs e)
-        {
-            _viewModel.GenerateCommandLine();
-        }
     }
 }
