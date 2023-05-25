@@ -9,9 +9,9 @@ namespace BuilderHelperOnWPF.Models
 
         public Node(string strFullPath, Node parent = null)
         {
-            StrFullPath = strFullPath;
+            FullName = strFullPath;
             Parent = parent;
-            StrNodeText = Path.GetFileName(strFullPath);
+            Name = Path.GetFileName(strFullPath);
             if (File.Exists(strFullPath))
             {
                 IsFile = true;
@@ -20,7 +20,7 @@ namespace BuilderHelperOnWPF.Models
             else if (Directory.Exists(strFullPath))
             {
                 IsFile = false;
-                SetSubfolders(StrFullPath, this);
+                SetSubfolders(FullName, this);
             }
             else
             {
@@ -35,8 +35,8 @@ namespace BuilderHelperOnWPF.Models
         public ObservableCollection<Node> Children { get; set; }
         public bool IsFile { get; }
         public Node Parent { get; set; }
-        public string StrFullPath { get; }
-        public string StrNodeText { get; }
+        public string FullName { get; }
+        public string Name { get; }
 
         #endregion Public Properties
 

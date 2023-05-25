@@ -17,8 +17,8 @@ namespace BuilderHelperOnWPF.ViewModels
         {
             TargetFolders = new ObservableCollection<Node>();
             SelectedItems = new ObservableCollection<Node>();
-            SelectedPaths = new ObservableCollection<FileToCopyInfo>();
-            TargetFilesFullPaths = new ObservableCollection<TargetFileInfo>();
+            SelectedPaths = new ObservableCollection<FileInfo>();
+            TargetFilesFullPaths = new ObservableCollection<FileInfo>();
             CommandLineText = "";
         }
 
@@ -34,8 +34,8 @@ namespace BuilderHelperOnWPF.ViewModels
 
         public string CommandLineText { get; set; }
         public ObservableCollection<Node> SelectedItems { get; }
-        public ObservableCollection<FileToCopyInfo> SelectedPaths { get; set; }
-        public ObservableCollection<TargetFileInfo> TargetFilesFullPaths { get; set; }
+        public ObservableCollection<FileInfo> SelectedPaths { get; set; }
+        public ObservableCollection<FileInfo> TargetFilesFullPaths { get; set; }
         public ObservableCollection<Node> TargetFolders { get; }
 
         #endregion Public Properties
@@ -46,7 +46,7 @@ namespace BuilderHelperOnWPF.ViewModels
         {
             if (node.IsFile)
             {
-                if (node.StrNodeText == fileName) TargetFilesFullPaths.Add(new TargetFileInfo(node.StrFullPath));
+                if (node.Name == fileName) TargetFilesFullPaths.Add(new FileInfo(node.FullName));
             }
             else
             {
@@ -79,7 +79,7 @@ namespace BuilderHelperOnWPF.ViewModels
         {
             foreach (var file in fileNames)
             {
-                var newFileInfo = new FileToCopyInfo() { Name = Path.GetFileName(file), Path = file, Time = File.GetLastWriteTime(file) };
+                var newFileInfo = new FileInfo(Path.GetFileName(file));
                 SelectedPaths.Add(newFileInfo);
                 FindFileInTargetFolders(newFileInfo.Name);
             }
@@ -96,12 +96,12 @@ namespace BuilderHelperOnWPF.ViewModels
 
         internal void RemoveSourceRow(object dataContext)
         {
-            SelectedPaths.Remove((FileToCopyInfo)dataContext);
+            SelectedPaths.Remove((FileInfo)dataContext);
         }
 
         internal void RemoveTargetPath(object dataContext)
         {
-            TargetFilesFullPaths.Remove((TargetFileInfo)dataContext);
+            TargetFilesFullPaths.Remove((FileInfo)dataContext);
         }
 
         internal void RemoveTargetRow(object nodeDataContext)

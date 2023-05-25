@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BuilderHelperOnWPF.Models
@@ -17,7 +18,7 @@ namespace BuilderHelperOnWPF.Models
 
             for (int i = 0; i < settings.FileToCopyInfos.Count; i++)
             {
-                var st = settings.CopyString + " " + settings.FileToCopyInfos[i].Path + " " + settings.FileToCopyInfos[i].Path + ";";
+                var st = settings.CopyString + " " + settings.FileToCopyInfos[i].FullName + " " + settings.FileToCopyInfos[i].FullName + ";";
                 sb.AppendLine(st);
             }
 
@@ -33,16 +34,16 @@ namespace BuilderHelperOnWPF.Models
         #region Public Fields
 
         public readonly string CopyString;
-        public readonly List<FileToCopyInfo> FileToCopyInfos = new List<FileToCopyInfo>();
+        public readonly List<FileInfo> FileToCopyInfos = new List<FileInfo>();
         public readonly string IISStartString;
         public readonly string IISStopString;
-        public readonly List<TargetFileInfo> TargetFileInfos = new List<TargetFileInfo>();
+        public readonly List<FileInfo> TargetFileInfos = new List<FileInfo>();
 
         #endregion Public Fields
 
         #region Public Constructors
 
-        public CommandLineSettings(List<FileToCopyInfo> fileToCopyInfos, List<TargetFileInfo> targetFileInfos)
+        public CommandLineSettings(List<FileInfo> fileToCopyInfos, List<FileInfo> targetFileInfos)
         {
             FileToCopyInfos = fileToCopyInfos;
             TargetFileInfos = targetFileInfos;
