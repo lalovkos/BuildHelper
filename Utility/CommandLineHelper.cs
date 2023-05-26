@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace BuilderHelperOnWPF.Models
@@ -14,15 +13,15 @@ namespace BuilderHelperOnWPF.Models
         public static string GenerateCommandLineString(CommandLineSettings settings)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(settings.IISStopString + ";");
+            sb.AppendLine(settings.IISStopString);
 
             for (int i = 0; i < settings.FileToCopyInfos.Count; i++)
             {
-                var st = settings.CopyString + " " + settings.FileToCopyInfos[i].FullName + " " + settings.FileToCopyInfos[i].FullName + ";";
+                var st = settings.CopyString + " " + settings.FileToCopyInfos[i].Item1 + " " + settings.FileToCopyInfos[i].Item2;
                 sb.AppendLine(st);
             }
 
-            sb.AppendLine(settings.IISStartString + ";");
+            sb.AppendLine(settings.IISStartString);
             return sb.ToString();
         }
 
@@ -34,19 +33,17 @@ namespace BuilderHelperOnWPF.Models
         #region Public Fields
 
         public readonly string CopyString;
-        public readonly List<FileInfo> FileToCopyInfos = new List<FileInfo>();
+        public readonly List<(string, string)> FileToCopyInfos = new List<(string, string)>();
         public readonly string IISStartString;
         public readonly string IISStopString;
-        public readonly List<FileInfo> TargetFileInfos = new List<FileInfo>();
 
         #endregion Public Fields
 
         #region Public Constructors
 
-        public CommandLineSettings(List<FileInfo> fileToCopyInfos, List<FileInfo> targetFileInfos)
+        public CommandLineSettings(List<(string, string)> fileToCopyInfos)
         {
             FileToCopyInfos = fileToCopyInfos;
-            TargetFileInfos = targetFileInfos;
             CopyString = "xcopy /Y /Q ";
             IISStopString = "iisreset /stop /noforce localhost";
             IISStartString = "iisreset /start localhost";

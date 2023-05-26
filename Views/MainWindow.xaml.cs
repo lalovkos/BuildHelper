@@ -77,12 +77,6 @@ namespace BuilderHelperOnWPF
             }
         }
 
-        private void RemoveTargetPath(object sender, RoutedEventArgs e)
-        {
-            var button = sender as System.Windows.Controls.Button;
-            _viewModel.RemoveTargetPath(button.DataContext);
-        }
-
         private void RemoveTargetRow(object sender, RoutedEventArgs e)
         {
             try

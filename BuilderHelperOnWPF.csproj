@@ -90,7 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="Models\Node.cs" />
+    <Compile Include="Models\FolderNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

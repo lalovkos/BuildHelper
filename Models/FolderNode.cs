@@ -3,11 +3,11 @@ using System.IO;
 
 namespace BuilderHelperOnWPF.Models
 {
-    public class Node
+    public class FolderNode
     {
         #region Public Constructors
 
-        public Node(string strFullPath, Node parent = null)
+        public FolderNode(string strFullPath, FolderNode parent = null)
         {
             FullName = strFullPath;
             Parent = parent;
@@ -32,9 +32,9 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Properties
 
-        public ObservableCollection<Node> Children { get; set; }
+        public ObservableCollection<FolderNode> Children { get; set; }
         public bool IsFile { get; }
-        public Node Parent { get; set; }
+        public FolderNode Parent { get; set; }
         public string FullName { get; }
         public string Name { get; }
 
@@ -42,20 +42,20 @@ namespace BuilderHelperOnWPF.Models
 
         #region Private Methods
 
-        private void SetSubfolders(string folderPath, Node parent = null)
+        private void SetSubfolders(string folderPath, FolderNode parent = null)
         {
-            Children = new ObservableCollection<Node>();
+            Children = new ObservableCollection<FolderNode>();
 
             var dirInfo = new DirectoryInfo(folderPath);
 
             foreach (var dir in dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
             {
-                Children.Add(new Node(dir.FullName, parent));
+                Children.Add(new FolderNode(dir.FullName, parent));
             }
 
             foreach (var file in dirInfo.GetFiles("*", SearchOption.TopDirectoryOnly))
             {
-                Children.Add(new Node(file.FullName, parent));
+                Children.Add(new FolderNode(file.FullName, parent));
             }
         }
 
