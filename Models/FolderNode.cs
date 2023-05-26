@@ -9,9 +9,8 @@ namespace BuilderHelperOnWPF.Models
 
         public FolderNode(string strFullPath, FolderNode parent = null)
         {
-            FullName = strFullPath;
+            FileInfo = new FileInfo(strFullPath);
             Parent = parent;
-            Name = Path.GetFileName(strFullPath);
             if (File.Exists(strFullPath))
             {
                 IsFile = true;
@@ -32,11 +31,12 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Properties
 
+        public FileInfo FileInfo { get; }
         public ObservableCollection<FolderNode> Children { get; set; }
         public bool IsFile { get; }
         public FolderNode Parent { get; set; }
-        public string FullName { get; }
-        public string Name { get; }
+        public string FullName => FileInfo.FullName;
+        public string Name => FileInfo.Name;
 
         #endregion Public Properties
 

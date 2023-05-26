@@ -1,4 +1,5 @@
 ﻿using BuilderHelperOnWPF.Models;
+using MS.WindowsAPICodePack.Internal;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -46,21 +47,6 @@ namespace BuilderHelperOnWPF.ViewModels
         #endregion Private Properties
 
         #region Public Methods
-
-        public void FindFileInNode(FolderNode node, FileInfo file)
-        {
-            if (node.IsFile)
-            {
-                if (node.Name == file.Name) FilesPathsCopyFromTo.Add((file.FullName, node.FullName));
-            }
-            else
-            {
-                foreach (var subfolder in node.Children)
-                {
-                    FindFileInNode(subfolder, file);
-                }
-            }
-        }
 
         public void GenerateCommandLine()
         {
@@ -132,12 +118,45 @@ namespace BuilderHelperOnWPF.ViewModels
         private void RecalculateTargetPaths(List<FileInfo> sourceFiles = null, List<FolderNode> targetFolders = null) 
         {
             var sources = sourceFiles ?? SourceFiles.ToList();
+            var targets = GetTargetFilesAsList(targetFolders);
+            var query = (from s in sources
+                         join t in targets on s.Name equals t.Name
+                         select ( s.FullName, t.FullName)).ToList();
+            FilesPathsCopyFromTo.AddRange(query);
+        }
+
+        private List<FileInfo> GetTargetFilesAsList(List<FolderNode> targetFolders = null) 
+        {
+            var result = new List<FileInfo>();
             var targets = targetFolders ?? TargetFolders.ToList();
-            foreach (var sourceFile in sources)
+            foreach (var targetFolder in targets)
             {
-                foreach (var targetFolder in targets)
+                if (targetFolder.IsFile)
                 {
-                    FindFileInNode(targetFolder, sourceFile);
+                    result.Add(targetFolder.FileInfo);
+                }
+                else
+                {
+                    foreach (var subfolder in targetFolder.Children)
+                    {
+                        AddToListIfFile(subfolder, result);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private void AddToListIfFile(FolderNode node, List<FileInfo> files) 
+        {
+            if (node.IsFile)
+            {
+                files.Add(node.FileInfo);
+            }
+            else
+            {
+                foreach (var subfolder in node.Children)
+                {
+                    AddToListIfFile(subfolder, files);
                 }
             }
         }
