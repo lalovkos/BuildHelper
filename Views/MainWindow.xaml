@@ -33,7 +33,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="4">
-                        <DataGrid ColumnWidth="*" ItemsSource="{Binding SourceFiles}" CanUserAddRows="False" IsReadOnly="True" AutoGenerateColumns = "False" Height="593">
+                        <DataGrid ColumnWidth="*" ItemsSource="{Binding SourceFiles, Mode=OneWay}" CanUserAddRows="False" IsReadOnly="True" AutoGenerateColumns = "False" Height="593">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" FontSize="12">
                                     <DataGridTextColumn.CellStyle>
@@ -52,7 +52,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         <DockPanel HorizontalAlignment="Left">
-                            <Button Click="AddSourceFiles" Content="Add source files" Margin="2,0,0,0"/>
+                            <Button Click="AddSourceFiles" Content="Add source files" Margin="2,0,0,0" />
                         </DockPanel>
                     </StackPanel>
 
@@ -67,22 +67,22 @@
                                     </HierarchicalDataTemplate.Resources>
                                     <DockPanel>
                                         <Button Click="RemoveTargetRow" Margin="0,0,2,0" FontSize="12">X</Button>
-                                        <TextBlock Text="{Binding Name}" FontSize="12"/>
+                                        <TextBlock Text="{Binding Name}" FontSize="12" />
                                     </DockPanel>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
                         </TreeView>
                         <DockPanel HorizontalAlignment="Left">
-                            <Button Click="AddTargetFolders" Content="Add target folders" Margin="0,2,0,0"/>
+                            <Button Click="AddTargetFolders" Content="Add target folders" Margin="0,2,0,0" />
                         </DockPanel>
                     </StackPanel>
                 </Grid>
             </TabItem>
             <TabItem Header="CommandLine">
                 <StackPanel Margin="2" VerticalAlignment="Top">
-                    <TextBox Text="{Binding CommandLineText}" IsEnabled="True" Width="1044" Height="600" FontSize="12" BorderThickness="1" IsReadOnly="True" RenderTransformOrigin="0.499,0.396" TextWrapping="WrapWithOverflow"/>
+                    <TextBox Text="{Binding CommandLineText, Mode=OneWay}" IsEnabled="True" Width="1044" Height="600" FontSize="12" BorderThickness="1" IsReadOnly="True" RenderTransformOrigin="0.499,0.396" TextWrapping="WrapWithOverflow" />
                     <Button Click="GenerateCommandLine" Width="100" Margin="-945,3,0,2" Content="Generate cmd.exe script" />
-                    <Button DockPanel.Dock="Right" Click="CopyAllToClipBoard" Width="50" Height="20" Margin="978,-1220,-9,0" Content="Copy"/>
+                    <Button DockPanel.Dock="Right" Click="CopyAllToClipBoard" Width="50" Height="20" Margin="978,-1220,-9,0" Content="Copy" />
                 </StackPanel>
             </TabItem>
             <TabItem Header="Settings">

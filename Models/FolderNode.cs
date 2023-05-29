@@ -31,14 +31,19 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Properties
 
-        public FileInfo FileInfo { get; }
         public ObservableCollection<FolderNode> Children { get; set; }
-        public bool IsFile { get; }
-        public FolderNode Parent { get; set; }
         public string FullName => FileInfo.FullName;
         public string Name => FileInfo.Name;
 
         #endregion Public Properties
+
+        #region Internal Properties
+
+        internal FileInfo FileInfo { get; }
+        internal bool IsFile { get; }
+        internal FolderNode Parent { get; set; }
+
+        #endregion Internal Properties
 
         #region Private Methods
 
