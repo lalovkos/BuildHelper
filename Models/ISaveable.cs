@@ -1,10 +1,13 @@
-﻿using System.Windows.Controls;
-
-namespace BuilderHelperOnWPF.Models
+﻿namespace BuilderHelperOnWPF.Models
 {
     internal interface ISaveable<T>
     {
-        void LoadFromSave(T save);
+        #region Public Methods
+
         T GetSave();
+
+        void LoadFromSave(T save);
+
+        #endregion Public Methods
     }
 }

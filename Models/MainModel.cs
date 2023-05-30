@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -10,6 +9,12 @@ namespace BuilderHelperOnWPF.Models
 {
     internal class MainModel : INotifyPropertyChanged, ISaveable<string>
     {
+        #region Public Fields
+
+        public bool ModelChanged = false;
+
+        #endregion Public Fields
+
         #region Private Fields
 
         private string _commandLineText = default;
@@ -45,8 +50,6 @@ namespace BuilderHelperOnWPF.Models
 
         public List<FolderNode> TargetFolders
         { get => _targetFolders; private set { _targetFolders = value; NotifyPropertyChanged("TargetFolders"); } }
-
-        public bool ModelChanged = false;
 
         #endregion Public Properties
 
@@ -96,6 +99,13 @@ namespace BuilderHelperOnWPF.Models
             TargetFolders.AddRange(newAddedFolders);
             RecalculateTargetPaths(null, newAddedFolders);
             NotifyPropertyChanged("TargetFolders");
+        }
+
+        internal void Clear()
+        {
+            TargetFolders = new List<FolderNode>();
+            SourceFiles = new List<FileInfo>();
+            _filesPathsCopyFromTo = new List<(string, string)>();
         }
 
         internal void GenerateCommandLine()
@@ -168,8 +178,8 @@ namespace BuilderHelperOnWPF.Models
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (propertyName == nameof(TargetFolders)
-                || propertyName == nameof(SourceFiles) 
-                ) 
+                || propertyName == nameof(SourceFiles)
+                )
             {
                 ModelChanged = true;
             }
@@ -190,13 +200,6 @@ namespace BuilderHelperOnWPF.Models
                          select (s.FullName, t.FullName)).ToList();
 
             _filesPathsCopyFromTo.AddRange(query);
-        }
-
-        internal void Clear()
-        {
-            TargetFolders = new List<FolderNode>();
-            SourceFiles = new List<FileInfo>();
-            _filesPathsCopyFromTo = new List<(string, string)>();
         }
 
         #endregion Private Methods

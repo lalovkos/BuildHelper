@@ -69,6 +69,25 @@ namespace BuilderHelperOnWPF
             _viewModel.GenerateCommandLine();
         }
 
+        private void NewProjectMenuClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.NewProject();
+        }
+
+        private void OpenProjectMenuClick(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new CommonOpenFileDialog())
+            {
+                dialog.InitialDirectory = "C:\\Users";
+                dialog.IsFolderPicker = false;
+                dialog.Multiselect = false;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    _viewModel.OpenProjectFromFile(dialog.FileName);
+                }
+            }
+        }
+
         private void RemoveSourceRow(object sender, RoutedEventArgs e)
         {
             try
@@ -93,27 +112,6 @@ namespace BuilderHelperOnWPF
             }
         }
 
-        #endregion Private Methods
-
-        private void NewProjectMenuClick(object sender, RoutedEventArgs e)
-        {
-            _viewModel.NewProject();
-        }
-
-        private void OpenProjectMenuClick(object sender, RoutedEventArgs e)
-        {
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                dialog.InitialDirectory = "C:\\Users";
-                dialog.IsFolderPicker = false;
-                dialog.Multiselect = false;
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    _viewModel.OpenProjectFromFile(dialog.FileName);
-                }
-            }
-        }
-
         private async void SaveProjectMenuClick(object sender, RoutedEventArgs e)
         {
             using (var dialog = new CommonSaveFileDialog())
@@ -128,5 +126,7 @@ namespace BuilderHelperOnWPF
                 }
             }
         }
+
+        #endregion Private Methods
     }
 }
