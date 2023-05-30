@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -6,11 +8,11 @@ using System.Runtime.CompilerServices;
 
 namespace BuilderHelperOnWPF.Models
 {
-    internal class MainModel : INotifyPropertyChanged
+    internal class MainModel : INotifyPropertyChanged, ISaveable<string>
     {
         #region Private Fields
 
-        private string _commandLineText = "";
+        private string _commandLineText = default;
         private List<FileInfo> _sourceFiles;
         private List<FolderNode> _targetFolders;
 
@@ -44,6 +46,8 @@ namespace BuilderHelperOnWPF.Models
         public List<FolderNode> TargetFolders
         { get => _targetFolders; private set { _targetFolders = value; NotifyPropertyChanged("TargetFolders"); } }
 
+        public bool ModelChanged = false;
+
         #endregion Public Properties
 
         #region Private Properties
@@ -51,6 +55,30 @@ namespace BuilderHelperOnWPF.Models
         private List<(string, string)> _filesPathsCopyFromTo { get; set; }
 
         #endregion Private Properties
+
+        #region Public Methods
+
+        public string GetSave()
+        {
+            var save = new ModelSave()
+            {
+                TargetFolders = TargetFolders,
+                SourceFiles = SourceFiles,
+            };
+            return JsonConvert.SerializeObject(save);
+        }
+
+        public void LoadFromSave(string save)
+        {
+            var saveObj = JsonConvert.DeserializeObject<ModelSave>(save);
+            TargetFolders = saveObj.TargetFolders;
+            SourceFiles = saveObj.SourceFiles;
+            RecalculateTargetPaths();
+            NotifyPropertyChanged("SourceFiles");
+            NotifyPropertyChanged("TargetFolders");
+        }
+
+        #endregion Public Methods
 
         #region Internal Methods
 
@@ -62,9 +90,6 @@ namespace BuilderHelperOnWPF.Models
             NotifyPropertyChanged("SourceFiles");
         }
 
-        // This method is called by the Set accessor of each property.
-        // The CallerMemberName attribute that is applied to the optional propertyName
-        // parameter causes the property name of the caller to be substituted as an argument.
         internal void AddTargetFolders(IEnumerable<string> fileNames)
         {
             var newAddedFolders = fileNames.Select(file => new FolderNode(file)).ToList();
@@ -96,6 +121,8 @@ namespace BuilderHelperOnWPF.Models
             {
                 node.Parent.Children.Remove(node);
             }
+            //Dont call NPC because list will update and reduce it self
+            //NotifyPropertyChanged("TargetFolders");
         }
 
         #endregion Internal Methods
@@ -140,6 +167,12 @@ namespace BuilderHelperOnWPF.Models
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
+            if (propertyName == nameof(TargetFolders)
+                || propertyName == nameof(SourceFiles) 
+                ) 
+            {
+                ModelChanged = true;
+            }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -157,6 +190,13 @@ namespace BuilderHelperOnWPF.Models
                          select (s.FullName, t.FullName)).ToList();
 
             _filesPathsCopyFromTo.AddRange(query);
+        }
+
+        internal void Clear()
+        {
+            TargetFolders = new List<FolderNode>();
+            SourceFiles = new List<FileInfo>();
+            _filesPathsCopyFromTo = new List<(string, string)>();
         }
 
         #endregion Private Methods

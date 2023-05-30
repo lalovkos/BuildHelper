@@ -1,8 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace BuilderHelperOnWPF.Models
 {
+    [JsonObject]
     public class FolderNode
     {
         #region Public Constructors
@@ -27,20 +31,38 @@ namespace BuilderHelperOnWPF.Models
             }
         }
 
+        [JsonConstructor]
+        public FolderNode(FileInfo fileInfo, ObservableCollection<FolderNode> children, bool isFile) 
+        {
+            FileInfo= fileInfo;
+            Children = children;
+            IsFile = isFile;
+            if (children != null) foreach(var ch in children) ch.Parent = this;
+        }
         #endregion Public Constructors
 
         #region Public Properties
 
+        [JsonProperty("сhildren")]
         public ObservableCollection<FolderNode> Children { get; set; }
+
+        [JsonIgnore]
         public string FullName => FileInfo.FullName;
+
+        [JsonIgnore]
         public string Name => FileInfo.Name;
 
         #endregion Public Properties
 
         #region Internal Properties
 
+        [JsonProperty("fileInfo")]
         internal FileInfo FileInfo { get; }
+
+        [JsonProperty("isFile")]
         internal bool IsFile { get; }
+
+        [JsonIgnore]
         internal FolderNode Parent { get; set; }
 
         #endregion Internal Properties
