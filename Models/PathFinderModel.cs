@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using BuilderHelperOnWPF.Models.SaveModels;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -7,17 +7,11 @@ using System.Runtime.CompilerServices;
 
 namespace BuilderHelperOnWPF.Models
 {
-    internal class MainModel : INotifyPropertyChanged, ISaveable<string>
+    public class PathFinderModel : INotifyPropertyChanged, ISaveable<PathFinderSave>
     {
-        #region Public Fields
-
-        public bool ModelChanged = false;
-
-        #endregion Public Fields
-
         #region Private Fields
 
-        private string _commandLineText = default;
+        private List<(string, string)> _filesPathsCopyFromTo;
         private List<FileInfo> _sourceFiles;
         private List<FolderNode> _targetFolders;
 
@@ -25,11 +19,11 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Constructors
 
-        public MainModel()
+        public PathFinderModel()
         {
             TargetFolders = new List<FolderNode>();
             SourceFiles = new List<FileInfo>();
-            _filesPathsCopyFromTo = new List<(string, string)>();
+            FilesPathsCopyFromTo = new List<(string, string)>();
         }
 
         #endregion Public Constructors
@@ -42,87 +36,71 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Properties
 
-        public string CommandLineText
-        { get => _commandLineText; set { _commandLineText = value; NotifyPropertyChanged("CommandLineText"); } }
+        public List<(string, string)> FilesPathsCopyFromTo
+        { get => _filesPathsCopyFromTo; private set { _filesPathsCopyFromTo = value; NotifyPropertyChanged(nameof(FilesPathsCopyFromTo)); } }
 
         public List<FileInfo> SourceFiles
-        { get => _sourceFiles; private set { _sourceFiles = value; NotifyPropertyChanged("SourceFiles"); } }
+        { get => _sourceFiles; private set { _sourceFiles = value; NotifyPropertyChanged(nameof(SourceFiles)); } }
 
         public List<FolderNode> TargetFolders
-        { get => _targetFolders; private set { _targetFolders = value; NotifyPropertyChanged("TargetFolders"); } }
+        { get => _targetFolders; private set { _targetFolders = value; NotifyPropertyChanged(nameof(TargetFolders)); } }
 
         #endregion Public Properties
 
-        #region Private Properties
-
-        private List<(string, string)> _filesPathsCopyFromTo { get; set; }
-
-        #endregion Private Properties
-
         #region Public Methods
 
-        public string GetSave()
-        {
-            var save = new ModelSave()
-            {
-                TargetFolders = TargetFolders,
-                SourceFiles = SourceFiles,
-            };
-            return JsonConvert.SerializeObject(save);
-        }
-
-        public void LoadFromSave(string save)
-        {
-            var saveObj = JsonConvert.DeserializeObject<ModelSave>(save);
-            TargetFolders = saveObj.TargetFolders;
-            SourceFiles = saveObj.SourceFiles;
-            RecalculateTargetPaths();
-            NotifyPropertyChanged("SourceFiles");
-            NotifyPropertyChanged("TargetFolders");
-        }
-
-        #endregion Public Methods
-
-        #region Internal Methods
-
-        internal void AddSelectedPaths(IEnumerable<string> fileNames)
+        public void AddSelectedPaths(IEnumerable<string> fileNames)
         {
             var newAddedSourcesFiles = fileNames.Select(file => new FileInfo(file)).ToList();
             SourceFiles.AddRange(newAddedSourcesFiles);
+            SourceFiles = SourceFiles.GroupBy(s => s.FullName).Select(grp => grp.FirstOrDefault()).ToList();                               
             RecalculateTargetPaths(newAddedSourcesFiles, null);
-            NotifyPropertyChanged("SourceFiles");
+            NotifyPropertyChanged(nameof(SourceFiles));
         }
 
-        internal void AddTargetFolders(IEnumerable<string> fileNames)
+        public void AddTargetFolders(IEnumerable<string> fileNames)
         {
             var newAddedFolders = fileNames.Select(file => new FolderNode(file)).ToList();
             TargetFolders.AddRange(newAddedFolders);
             RecalculateTargetPaths(null, newAddedFolders);
-            NotifyPropertyChanged("TargetFolders");
+            NotifyPropertyChanged(nameof(TargetFolders));
         }
 
-        internal void Clear()
+        public void Clear()
         {
             TargetFolders = new List<FolderNode>();
             SourceFiles = new List<FileInfo>();
-            _filesPathsCopyFromTo = new List<(string, string)>();
+            FilesPathsCopyFromTo = new List<(string, string)>();
         }
 
-        internal void GenerateCommandLine()
+        public PathFinderSave GetSave()
         {
-            CommandLineText = CommandLineHelper.GenerateCommandLineString(new CommandLineSettings(_filesPathsCopyFromTo));
+            var save = new PathFinderSave()
+            {
+                TargetFolders = TargetFolders,
+                SourceFiles = SourceFiles,
+            };
+            return save;
         }
 
-        internal void RemoveSourceRow(FileInfo fileInfo)
+        public void LoadFromSave(PathFinderSave save)
         {
-            _filesPathsCopyFromTo.RemoveAll(o => o.Item1 == fileInfo.FullName);
+            Clear();
+            TargetFolders = save.TargetFolders;
+            SourceFiles = save.SourceFiles;
+            RecalculateTargetPaths();
+        }
+
+        public void RemoveSourceRow(FileInfo fileInfo)
+        {
+            FilesPathsCopyFromTo.RemoveAll(o => o.Item1 == fileInfo.FullName);
             SourceFiles.Remove(fileInfo);
-            NotifyPropertyChanged("SourceFiles");
+            NotifyPropertyChanged(nameof(SourceFiles));
         }
 
-        internal void RemoveTargetRow(FolderNode node)
+        public void RemoveTargetRow(FolderNode node)
         {
-            _filesPathsCopyFromTo.RemoveAll(o => o.Item2 == node.FullName);
+            FilesPathsCopyFromTo.RemoveAll(o => o.Item2 == node.FullName);
             if (node.Parent == null)
             {
                 TargetFolders.Remove(node);
@@ -131,11 +109,9 @@ namespace BuilderHelperOnWPF.Models
             {
                 node.Parent.Children.Remove(node);
             }
-            //Dont call NPC because list will update and reduce it self
-            //NotifyPropertyChanged("TargetFolders");
         }
 
-        #endregion Internal Methods
+        #endregion Public Methods
 
         #region Private Methods
 
@@ -177,12 +153,6 @@ namespace BuilderHelperOnWPF.Models
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            if (propertyName == nameof(TargetFolders)
-                || propertyName == nameof(SourceFiles)
-                )
-            {
-                ModelChanged = true;
-            }
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
@@ -199,7 +169,8 @@ namespace BuilderHelperOnWPF.Models
                          where s.FullName != t.FullName
                          select (s.FullName, t.FullName)).ToList();
 
-            _filesPathsCopyFromTo.AddRange(query);
+            FilesPathsCopyFromTo.AddRange(query);
+            NotifyPropertyChanged(nameof(FilesPathsCopyFromTo));
         }
 
         #endregion Private Methods

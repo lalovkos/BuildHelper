@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace BuilderHelperOnWPF.Models
+namespace BuilderHelperOnWPF.Models.SaveModels
 {
     [JsonObject]
-    public class ModelSave
+    public class PathFinderSave
     {
         #region Public Properties
 

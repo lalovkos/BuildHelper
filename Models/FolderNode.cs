@@ -45,26 +45,22 @@ namespace BuilderHelperOnWPF.Models
         [JsonProperty("сhildren")]
         public ObservableCollection<FolderNode> Children { get; set; }
 
+        [JsonProperty("fileInfo")]
+        public FileInfo FileInfo { get; }
+
         [JsonIgnore]
         public string FullName => FileInfo.FullName;
+
+        [JsonProperty("isFile")]
+        public bool IsFile { get; }
 
         [JsonIgnore]
         public string Name => FileInfo.Name;
 
-        #endregion Public Properties
-
-        #region Internal Properties
-
-        [JsonProperty("fileInfo")]
-        internal FileInfo FileInfo { get; }
-
-        [JsonProperty("isFile")]
-        internal bool IsFile { get; }
-
         [JsonIgnore]
-        internal FolderNode Parent { get; set; }
+        public FolderNode Parent { get; set; }
 
-        #endregion Internal Properties
+        #endregion Public Properties
 
         #region Private Methods
 

@@ -1,4 +1,7 @@
 ﻿using BuilderHelperOnWPF.Models;
+using BuilderHelperOnWPF.Models.SaveModels;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BuilderHelperOnWPF.ViewModels
 {
-    internal class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         #region Public Fields
 
@@ -17,19 +20,23 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Private Fields
 
-        private MainModel _mainModel;
+        private CommandLineWorkerModel _commandLineModel;
+        private PathFinderModel _pathFinderModel;
 
         #endregion Private Fields
 
-        #region Internal Constructors
+        #region Public Constructors
 
-        internal MainWindowViewModel()
+        public MainWindowViewModel()
         {
-            _mainModel = new MainModel();
-            _mainModel.PropertyChanged += ModelChanged;
+            _pathFinderModel = new PathFinderModel();
+            _pathFinderModel.PropertyChanged += ModelChanged;
+
+            _commandLineModel = new CommandLineWorkerModel();
+            _commandLineModel.PropertyChanged += ModelChanged;
         }
 
-        #endregion Internal Constructors
+        #endregion Public Constructors
 
         #region Public Events
 
@@ -39,71 +46,92 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Public Properties
 
-        public string CommandLineText => _mainModel.CommandLineText;
-        public ObservableCollection<FileInfo> SourceFiles => new ObservableCollection<FileInfo>(_mainModel.SourceFiles);
-        public ObservableCollection<FolderNode> TargetFolders => new ObservableCollection<FolderNode>(_mainModel.TargetFolders);
+        public string CommandLineText => _commandLineModel.CommandLineText;
+
+        public string CopyCommandString
+        { get { return _commandLineModel.CopyCommandString; } set { _commandLineModel.CopyCommandString = value; } }
+
+        public string IISStartString
+        { get { return _commandLineModel.IISStartString; } set { _commandLineModel.IISStartString = value; } }
+
+        public string IISStopString
+        { get { return _commandLineModel.IISStopString; } set { _commandLineModel.IISStopString = value; } }
+
+        public bool RestartIIS
+        { get { return _commandLineModel.RestartIIS; } set { _commandLineModel.RestartIIS = value; } }
+
+        public ObservableCollection<FileInfo> SourceFiles => new ObservableCollection<FileInfo>(_pathFinderModel.SourceFiles);
+        public ObservableCollection<FolderNode> TargetFolders => new ObservableCollection<FolderNode>(_pathFinderModel.TargetFolders);
 
         #endregion Public Properties
 
-        #region Internal Methods
+        #region Public Methods
 
-        internal void AddSelectedPaths(IEnumerable<string> fileNames)
+        public void AddSelectedPaths(IEnumerable<string> fileNames)
         {
-            _mainModel.AddSelectedPaths(fileNames);
+            _pathFinderModel.AddSelectedPaths(fileNames);
         }
 
-        internal void AddTargetFolders(IEnumerable<string> fileNames)
+        public void AddTargetFolders(IEnumerable<string> fileNames)
         {
-            _mainModel.AddTargetFolders(fileNames);
+            _pathFinderModel.AddTargetFolders(fileNames);
         }
 
-        internal void GenerateCommandLine()
+        public void NewProject()
         {
-            _mainModel.GenerateCommandLine();
+            _pathFinderModel.Clear();
         }
 
-        internal void NewProject()
-        {
-            _mainModel.Clear();
-        }
-
-        internal void OpenProjectFromFile(string fileName)
+        public void OpenProjectFromFile(string fileName)
         {
             var file = new FileInfo(fileName);
-            using (var rS = file.OpenText())
+            using (var readStream = file.OpenText())
             {
-                _mainModel.LoadFromSave(rS.ReadToEnd());
+                ProjectSave pS = JsonConvert.DeserializeObject<ProjectSave>(readStream.ReadToEnd());
+                _pathFinderModel.LoadFromSave(pS.PathFinderSave);
+                _commandLineModel.LoadFromSave(pS.CommandLineWorkerSettingsSave);
+                _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
             }
         }
 
-        internal void RemoveSourceRow(object dataContext)
+        public void RemoveSourceRow(object dataContext)
         {
             var fileInfo = dataContext as FileInfo ?? throw new InvalidDataException();
-            _mainModel.RemoveSourceRow(fileInfo);
+            _pathFinderModel.RemoveSourceRow(fileInfo);
         }
 
-        internal void RemoveTargetRow(object nodeDataContext)
+        public void RemoveTargetRow(object nodeDataContext)
         {
             var node = nodeDataContext as FolderNode ?? throw new InvalidDataException();
-            _mainModel.RemoveTargetRow(node);
+            _pathFinderModel.RemoveTargetRow(node);
         }
 
-        internal async Task SaveFileIntoProject(string fileName)
+        public async Task SaveFileIntoProject(string fileName)
         {
             var file = new FileInfo(fileName);
-            using (var wS = file.CreateText())
+            using (var writeStream = file.CreateText())
             {
-                await wS.WriteAsync(_mainModel.GetSave());
+                ProjectSave pS = new ProjectSave() { CommandLineWorkerSettingsSave = _commandLineModel.GetSave(), PathFinderSave = _pathFinderModel.GetSave() };
+                await writeStream.WriteAsync(JsonConvert.SerializeObject(pS));
             }
         }
 
-        #endregion Internal Methods
+        #endregion Public Methods
 
         #region Private Methods
 
         private void ModelChanged(object sender, PropertyChangedEventArgs e)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(e.PropertyName));
+            if (e.PropertyName == nameof(_pathFinderModel.FilesPathsCopyFromTo))
+            {
+                _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
+            }
+        }
+
+        internal void GenerateCommandLine()
+        {
+            _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
         }
 
         #endregion Private Methods

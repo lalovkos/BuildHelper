@@ -1,6 +1,6 @@
 ﻿namespace BuilderHelperOnWPF.Models
 {
-    internal interface ISaveable<T>
+    public interface ISaveable<T>
     {
         #region Public Methods
 

@@ -76,20 +76,24 @@
             <TabItem Header="CommandLine">
                 <StackPanel Margin="2" VerticalAlignment="Top">
                     <TextBox Text="{Binding CommandLineText, Mode=OneWay}" IsEnabled="True" Width="1044" Height="600" FontSize="12" BorderThickness="1" IsReadOnly="True" RenderTransformOrigin="0.499,0.396" TextWrapping="WrapWithOverflow" />
-                    <Button Click="GenerateCommandLine" Width="100" Margin="-945,3,0,2" Content="Generate cmd.exe script" />
+                    <Button Click="GenerateCommandLine" Width="100" Margin="-945,3,0,2" Content="Generate cmd.exe script"/>
                     <Button DockPanel.Dock="Right" Click="CopyAllToClipBoard" Width="50" Height="20" Margin="978,-1220,-9,0" Content="Copy" />
                 </StackPanel>
             </TabItem>
             <TabItem Header="Settings">
-                <DockPanel>
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                    <CheckBox Content="Col2Row0" Margin="2,2,2,2" />
-                </DockPanel>
+                <StackPanel>
+                    <GroupBox Header="Copy settings">
+                        <TextBox Margin="0,2,0,0" Text="{Binding CopyCommandString}" />
+                    </GroupBox>
+
+                    <GroupBox Header="IIS settings">
+                        <StackPanel>
+                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding RestartIIS}" Content="Stop IIS before and start IIS after" />
+                            <TextBox Margin="0,4,0,0" Text="{Binding IISStopString}" IsEnabled="{Binding RestartIIS}"/>
+                            <TextBox Margin="0,4,0,0" Text="{Binding IISStartString}" IsEnabled="{Binding RestartIIS}"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
             </TabItem>
         </TabControl>
     </Grid>

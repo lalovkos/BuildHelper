@@ -64,11 +64,6 @@ namespace BuilderHelperOnWPF
             Clipboard.SetText(_viewModel.CommandLineText);
         }
 
-        private void GenerateCommandLine(object sender, RoutedEventArgs e)
-        {
-            _viewModel.GenerateCommandLine();
-        }
-
         private void NewProjectMenuClick(object sender, RoutedEventArgs e)
         {
             _viewModel.NewProject();
@@ -128,5 +123,10 @@ namespace BuilderHelperOnWPF
         }
 
         #endregion Private Methods
+
+        private void GenerateCommandLine(object sender, RoutedEventArgs e)
+        {
+            _viewModel.GenerateCommandLine();
+        }
     }
 }
