@@ -1,6 +1,7 @@
 ﻿using BuilderHelperOnWPF.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
+using System.IO;
 using System.Windows;
 
 namespace BuilderHelperOnWPF
@@ -13,6 +14,7 @@ namespace BuilderHelperOnWPF
         #region Private Fields
 
         private readonly MainWindowViewModel _viewModel;
+        private readonly string TitlePrefix = "BuildHelperOnWPF";
 
         #endregion Private Fields
 
@@ -24,6 +26,7 @@ namespace BuilderHelperOnWPF
 
             _viewModel = new MainWindowViewModel();
             DataContext = _viewModel;
+            Title = TitlePrefix + " : Unsaved project";
         }
 
         #endregion Public Constructors
@@ -67,6 +70,7 @@ namespace BuilderHelperOnWPF
         private void NewProjectMenuClick(object sender, RoutedEventArgs e)
         {
             _viewModel.NewProject();
+            Title = TitlePrefix + " : Unsaved project";
         }
 
         private void OpenProjectMenuClick(object sender, RoutedEventArgs e)
@@ -79,6 +83,7 @@ namespace BuilderHelperOnWPF
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
                     _viewModel.OpenProjectFromFile(dialog.FileName);
+                    Title = TitlePrefix + " : " + Path.GetFileNameWithoutExtension(dialog.FileName);
                 }
             }
         }
