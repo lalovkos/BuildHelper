@@ -1,7 +1,6 @@
 ﻿using BuilderHelperOnWPF.Models;
 using BuilderHelperOnWPF.Models.SaveModels;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -59,6 +58,11 @@ namespace BuilderHelperOnWPF.ViewModels
 
         public bool RestartIIS
         { get { return _commandLineModel.RestartIIS; } set { _commandLineModel.RestartIIS = value; } }
+        
+        public bool CopyFilesWithSamePath
+        { get { return _pathFinderModel.CopyFilesWithSamePath; } set { _pathFinderModel.CopyFilesWithSamePath = value; } }
+        public bool RemoveDuplicates 
+        { get { return _pathFinderModel.RemoveDuplicates; } set { _pathFinderModel.RemoveDuplicates = value; } }
 
         public ObservableCollection<FileInfo> SourceFiles => new ObservableCollection<FileInfo>(_pathFinderModel.SourceFiles);
         public ObservableCollection<FolderNode> TargetFolders => new ObservableCollection<FolderNode>(_pathFinderModel.TargetFolders);
@@ -118,6 +122,15 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #endregion Public Methods
 
+        #region Internal Methods
+
+        internal void GenerateCommandLine()
+        {
+            _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
+        }
+
+        #endregion Internal Methods
+
         #region Private Methods
 
         private void ModelChanged(object sender, PropertyChangedEventArgs e)
@@ -127,11 +140,6 @@ namespace BuilderHelperOnWPF.ViewModels
             {
                 _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
             }
-        }
-
-        internal void GenerateCommandLine()
-        {
-            _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
         }
 
         #endregion Private Methods

@@ -5,6 +5,8 @@ namespace BuilderHelperOnWPF.Models.SaveModels
     [JsonObject]
     public class CommandLineWorkerSettingsSave
     {
+        #region Public Properties
+
         [JsonProperty("copyCommandString")]
         public string CopyCommandString { get; set; }
 
@@ -16,5 +18,7 @@ namespace BuilderHelperOnWPF.Models.SaveModels
 
         [JsonProperty("restartIIS")]
         public bool RestartIIS { get; set; }
+
+        #endregion Public Properties
     }
 }

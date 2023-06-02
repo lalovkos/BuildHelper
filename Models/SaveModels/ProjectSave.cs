@@ -1,5 +1,4 @@
-﻿using BuilderHelperOnWPF.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace BuilderHelperOnWPF.Models.SaveModels
 {

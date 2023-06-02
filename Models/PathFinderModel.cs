@@ -14,6 +14,8 @@ namespace BuilderHelperOnWPF.Models
         private List<(string, string)> _filesPathsCopyFromTo;
         private List<FileInfo> _sourceFiles;
         private List<FolderNode> _targetFolders;
+        private bool _removeDuplicates;
+        private bool _copyFilesWithSamePath;
 
         #endregion Private Fields
 
@@ -24,6 +26,8 @@ namespace BuilderHelperOnWPF.Models
             TargetFolders = new List<FolderNode>();
             SourceFiles = new List<FileInfo>();
             FilesPathsCopyFromTo = new List<(string, string)>();
+            RemoveDuplicates = true;
+            CopyFilesWithSamePath = false;
         }
 
         #endregion Public Constructors
@@ -45,6 +49,10 @@ namespace BuilderHelperOnWPF.Models
         public List<FolderNode> TargetFolders
         { get => _targetFolders; private set { _targetFolders = value; NotifyPropertyChanged(nameof(TargetFolders)); } }
 
+        public bool RemoveDuplicates { get => _removeDuplicates; set { _removeDuplicates = value; NotifyPropertyChanged(nameof(RemoveDuplicates)); } }
+
+        public bool CopyFilesWithSamePath { get => _copyFilesWithSamePath; set { _copyFilesWithSamePath = value; NotifyPropertyChanged(nameof(CopyFilesWithSamePath)); } }
+
         #endregion Public Properties
 
         #region Public Methods
@@ -53,7 +61,7 @@ namespace BuilderHelperOnWPF.Models
         {
             var newAddedSourcesFiles = fileNames.Select(file => new FileInfo(file)).ToList();
             SourceFiles.AddRange(newAddedSourcesFiles);
-            SourceFiles = SourceFiles.GroupBy(s => s.FullName).Select(grp => grp.FirstOrDefault()).ToList();                               
+            if (RemoveDuplicates) SourceFiles = SourceFiles.GroupBy(s => s.FullName).Select(grp => grp.FirstOrDefault()).ToList();
             RecalculateTargetPaths(newAddedSourcesFiles, null);
             NotifyPropertyChanged(nameof(SourceFiles));
         }
@@ -71,6 +79,8 @@ namespace BuilderHelperOnWPF.Models
             TargetFolders = new List<FolderNode>();
             SourceFiles = new List<FileInfo>();
             FilesPathsCopyFromTo = new List<(string, string)>();
+            RemoveDuplicates = true;
+            CopyFilesWithSamePath = false;
         }
 
         public PathFinderSave GetSave()
@@ -79,6 +89,8 @@ namespace BuilderHelperOnWPF.Models
             {
                 TargetFolders = TargetFolders,
                 SourceFiles = SourceFiles,
+                RemoveDuplicates = RemoveDuplicates,
+                CopyFilesWithSamePath = CopyFilesWithSamePath
             };
             return save;
         }
@@ -164,10 +176,20 @@ namespace BuilderHelperOnWPF.Models
             if (sources.Count == 0 || targets.Count == 0)
                 return;
 
-            var query = (from s in sources
-                         join t in targets on s.Name equals t.Name
-                         where s.FullName != t.FullName
-                         select (s.FullName, t.FullName)).ToList();
+            IEnumerable<(string, string)> query;
+            if (CopyFilesWithSamePath)
+            {
+                query = (from s in sources
+                             join t in targets on s.Name equals t.Name
+                             select (s.FullName, t.FullName));
+            }
+            else 
+            {
+                query = (from s in sources
+                             join t in targets on s.Name equals t.Name
+                             where s.FullName != t.FullName
+                             select (s.FullName, t.FullName));
+            }
 
             FilesPathsCopyFromTo.AddRange(query);
             NotifyPropertyChanged(nameof(FilesPathsCopyFromTo));
