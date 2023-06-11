@@ -12,8 +12,8 @@ namespace BuilderHelperOnWPF.ViewModels
         #region Public Fields
 
         public const string DEFAULT_COPY_STRING = "xcopy /Y /Q ";
-        public const string DEFAULT_IIS_START_STRING = "iisreset /stop /noforce localhost";
-        public const string DEFAULT_IIS_STOP_STRING = "iisreset /start localhost";
+        public const string DEFAULT_IIS_START_STRING = "iisreset /start localhost";
+        public const string DEFAULT_IIS_STOP_STRING = "iisreset /stop /noforce localhost";
         public const bool RESTART_IIS = true;
 
         #endregion Public Fields
@@ -36,8 +36,10 @@ namespace BuilderHelperOnWPF.ViewModels
             IISStopString = DEFAULT_IIS_STOP_STRING;
             IISStartString = DEFAULT_IIS_START_STRING;
             RestartIIS = RESTART_IIS;
-            CommandLineText = "";
-            GenerateCommandLineString();
+            CommandLineTextToCopy = "";
+            CommandLineTextToCopy = "";
+            GenerateCommandLineStringForExecuting();
+            GenerateCommandLineStringForFile();
         }
 
         #endregion Public Constructors
@@ -50,8 +52,10 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Public Properties
 
-        public string CommandLineText
-        { get => _commandLineText; private set { _commandLineText = value; NotifyPropertyChanged(nameof(CommandLineText)); } }
+        public string CommandLineTextToCopy
+        { get => _commandLineText; private set { _commandLineText = value; NotifyPropertyChanged(nameof(CommandLineTextToCopy)); } }
+        public string CommandLineTextToExecute
+        { get => _commandLineText; private set { _commandLineText = value; NotifyPropertyChanged(nameof(CommandLineTextToExecute)); } }
 
         public string CopyCommandString
         { get => _copyCommandString; set { _copyCommandString = value; NotifyPropertyChanged(nameof(CopyCommandString)); } }
@@ -69,7 +73,31 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Public Methods
 
-        public void GenerateCommandLineString(List<(string, string)> fileToCopyInfos = null)
+        public void GenerateCommandLineStringForExecuting(List<(string, string)> fileToCopyInfos = null)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (RestartIIS)
+            {
+                sb.Append(IISStopString + " & ");
+            }
+
+            if (fileToCopyInfos != null)
+            {
+                for (int i = 0; i < fileToCopyInfos.Count; i++)
+                {
+                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2 + "* & ";
+                    sb.Append(st);
+                }
+            }
+
+            if (RestartIIS)
+            {
+                sb.Append(IISStartString);
+            }
+            CommandLineText = sb.ToString();
+        }
+
+        public void GenerateCommandLineStringForFile(List<(string, string)> fileToCopyInfos = null)
         {
             StringBuilder sb = new StringBuilder();
             if (RestartIIS)

@@ -1,7 +1,9 @@
 ﻿using BuilderHelperOnWPF.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Security.Principal;
 using System.Windows;
 
 namespace BuilderHelperOnWPF
@@ -132,6 +134,20 @@ namespace BuilderHelperOnWPF
         private void GenerateCommandLine(object sender, RoutedEventArgs e)
         {
             _viewModel.GenerateCommandLine();
+        }
+
+        private void ExecuteCommandLine(object sender, RoutedEventArgs e)
+        {
+            Process process = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.WindowStyle = ProcessWindowStyle.Normal;
+            startInfo.UseShellExecute = true;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Verb = "runas";
+            startInfo.Arguments = "/user:Administrator \"cmd /K" + " " +_viewModel.CommandLineText + "\"";
+            process.StartInfo = startInfo;
+            process.Start();
+
         }
     }
 }

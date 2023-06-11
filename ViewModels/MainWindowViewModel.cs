@@ -45,7 +45,7 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Public Properties
 
-        public string CommandLineText => _commandLineModel.CommandLineText;
+        public string CommandLineText => _commandLineModel.CommandLineTextToCopy;
 
         public string CopyCommandString
         { get { return _commandLineModel.CopyCommandString; } set { _commandLineModel.CopyCommandString = value; } }
