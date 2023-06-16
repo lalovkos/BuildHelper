@@ -1,11 +1,10 @@
-﻿using BuilderHelperOnWPF.Models;
-using BuilderHelperOnWPF.Models.SaveModels;
+﻿using BuilderHelperOnWPF.Models.SaveModels;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace BuilderHelperOnWPF.ViewModels
+namespace BuilderHelperOnWPF.Models
 {
     public class CommandLineWorkerModel : INotifyPropertyChanged, ISaveable<CommandLineWorkerSettingsSave>
     {
@@ -20,7 +19,8 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Private Fields
 
-        private string _commandLineText;
+        private string _commandLineTextToCopy;
+        private string _commandLineTextToExecute;
         private string _copyCommandString;
         private string _iISStartString;
         private string _iISStopString;
@@ -38,8 +38,8 @@ namespace BuilderHelperOnWPF.ViewModels
             RestartIIS = RESTART_IIS;
             CommandLineTextToCopy = "";
             CommandLineTextToCopy = "";
-            GenerateCommandLineStringForExecuting();
-            GenerateCommandLineStringForFile();
+            GenerateCommandLineStringForCopying();
+            GenerateCommandLineStringForCopying();
         }
 
         #endregion Public Constructors
@@ -53,9 +53,10 @@ namespace BuilderHelperOnWPF.ViewModels
         #region Public Properties
 
         public string CommandLineTextToCopy
-        { get => _commandLineText; private set { _commandLineText = value; NotifyPropertyChanged(nameof(CommandLineTextToCopy)); } }
+        { get => _commandLineTextToCopy; private set { _commandLineTextToCopy = value; NotifyPropertyChanged(nameof(CommandLineTextToCopy)); } }
+
         public string CommandLineTextToExecute
-        { get => _commandLineText; private set { _commandLineText = value; NotifyPropertyChanged(nameof(CommandLineTextToExecute)); } }
+        { get => _commandLineTextToExecute; private set { _commandLineTextToExecute = value; NotifyPropertyChanged(nameof(CommandLineTextToExecute)); } }
 
         public string CopyCommandString
         { get => _copyCommandString; set { _copyCommandString = value; NotifyPropertyChanged(nameof(CopyCommandString)); } }
@@ -73,52 +74,10 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Public Methods
 
-        public void GenerateCommandLineStringForExecuting(List<(string, string)> fileToCopyInfos = null)
+        public void GenerateCommandLine(List<(string, string)> filesPathsCopyFromTo)
         {
-            StringBuilder sb = new StringBuilder();
-            if (RestartIIS)
-            {
-                sb.Append(IISStopString + " & ");
-            }
-
-            if (fileToCopyInfos != null)
-            {
-                for (int i = 0; i < fileToCopyInfos.Count; i++)
-                {
-                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2 + "* & ";
-                    sb.Append(st);
-                }
-            }
-
-            if (RestartIIS)
-            {
-                sb.Append(IISStartString);
-            }
-            CommandLineText = sb.ToString();
-        }
-
-        public void GenerateCommandLineStringForFile(List<(string, string)> fileToCopyInfos = null)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (RestartIIS)
-            {
-                sb.AppendLine(IISStopString);
-            }
-
-            if (fileToCopyInfos != null)
-            {
-                for (int i = 0; i < fileToCopyInfos.Count; i++)
-                {
-                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2;
-                    sb.AppendLine(st);
-                }
-            }
-
-            if (RestartIIS)
-            {
-                sb.AppendLine(IISStartString);
-            }
-            CommandLineText = sb.ToString();
+            CommandLineTextToCopy = GenerateCommandLineStringForCopying(filesPathsCopyFromTo);
+            CommandLineTextToExecute = GenerateCommandLineStringForExecuting(filesPathsCopyFromTo);
         }
 
         public CommandLineWorkerSettingsSave GetSave()
@@ -144,6 +103,54 @@ namespace BuilderHelperOnWPF.ViewModels
         #endregion Public Methods
 
         #region Private Methods
+
+        private string GenerateCommandLineStringForCopying(List<(string, string)> fileToCopyInfos = null)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (RestartIIS)
+            {
+                sb.AppendLine(IISStopString);
+            }
+
+            if (fileToCopyInfos != null)
+            {
+                for (int i = 0; i < fileToCopyInfos.Count; i++)
+                {
+                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2;
+                    sb.AppendLine(st);
+                }
+            }
+
+            if (RestartIIS)
+            {
+                sb.AppendLine(IISStartString);
+            }
+            return sb.ToString();
+        }
+
+        private string GenerateCommandLineStringForExecuting(List<(string, string)> fileToCopyInfos = null)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (RestartIIS)
+            {
+                sb.Append(IISStopString + " & ");
+            }
+
+            if (fileToCopyInfos != null)
+            {
+                for (int i = 0; i < fileToCopyInfos.Count; i++)
+                {
+                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2 + "* & ";
+                    sb.Append(st);
+                }
+            }
+
+            if (RestartIIS)
+            {
+                sb.Append(IISStartString);
+            }
+            return sb.ToString();
+        }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {

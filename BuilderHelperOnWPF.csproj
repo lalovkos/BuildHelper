@@ -92,8 +92,9 @@
     <Compile Include="Models\PathFinderModel.cs" />
     <Compile Include="Models\SaveModels\PathFinderSave.cs" />
     <Compile Include="Models\SaveModels\CommandLineWorkerSettingsSave.cs" />
-    <Compile Include="Utility\CommandLineWorkerModel.cs" />
+    <Compile Include="Models\CommandLineWorkerModel.cs" />
     <Compile Include="Models\SaveModels\ProjectSave.cs" />
+    <Compile Include="Utility\CommandLineExecutor.cs" />
     <Compile Include="Views\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

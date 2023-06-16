@@ -18,12 +18,12 @@
                 <MenuItem Header="Save Project" Click="SaveProjectMenuClick" />
             </MenuItem>
             <MenuItem Header="Language">
-                <MenuItem Header="Ru"/>
-                <MenuItem Header="Eng"/>
+                <MenuItem Header="Ru" />
+                <MenuItem Header="Eng" />
             </MenuItem>
             <MenuItem Header="Theme">
-                <MenuItem Header="Light"/>
-                <MenuItem Header="Dark"/>
+                <MenuItem Header="Light" />
+                <MenuItem Header="Dark" />
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1">
@@ -83,7 +83,7 @@
             <TabItem Header="CommandLine">
                 <StackPanel Margin="2" VerticalAlignment="Top">
                     <TextBox Text="{Binding CommandLineText, Mode=OneWay}" IsEnabled="True" Width="1044" Height="600" FontSize="12" BorderThickness="1" IsReadOnly="True" RenderTransformOrigin="0.499,0.396" TextWrapping="WrapWithOverflow" />
-                    <DockPanel Margin="4,2,0,0" >
+                    <DockPanel Margin="4,2,0,0">
                         <Button Click="GenerateCommandLine" Width="120" HorizontalAlignment="Left" Content="Generate cmd script" />
                         <Button Click="ExecuteCommandLine" Width="120" HorizontalAlignment="Right" Content="Execute cmd script" Margin="0,2,4,0" />
                     </DockPanel>
@@ -92,6 +92,11 @@
             </TabItem>
             <TabItem Header="Settings">
                 <StackPanel>
+                    <GroupBox Header="Interface settings">
+                        <StackPanel>
+                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding InterfaceViewCommandLineForCopying}" Content="Show beautified commandline in textbox"/>
+                        </StackPanel>
+                    </GroupBox>
                     <GroupBox Header="Copy settings">
                         <TextBox Margin="0,2,0,0" Text="{Binding CopyCommandString}" />
                     </GroupBox>

@@ -1,6 +1,8 @@
 ﻿using BuilderHelperOnWPF.Models;
 using BuilderHelperOnWPF.Models.SaveModels;
+using BuilderHelperOnWPF.Utility;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -20,6 +22,7 @@ namespace BuilderHelperOnWPF.ViewModels
         #region Private Fields
 
         private CommandLineWorkerModel _commandLineModel;
+        private bool _interfaceViewCommandLineForCopying;
         private PathFinderModel _pathFinderModel;
 
         #endregion Private Fields
@@ -33,6 +36,8 @@ namespace BuilderHelperOnWPF.ViewModels
 
             _commandLineModel = new CommandLineWorkerModel();
             _commandLineModel.PropertyChanged += ModelChanged;
+
+            _interfaceViewCommandLineForCopying = true;
         }
 
         #endregion Public Constructors
@@ -45,10 +50,13 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #region Public Properties
 
-        public string CommandLineText => _commandLineModel.CommandLineTextToCopy;
+        public string CommandLineText { get; private set; }
 
         public string CopyCommandString
         { get { return _commandLineModel.CopyCommandString; } set { _commandLineModel.CopyCommandString = value; } }
+
+        public bool CopyFilesWithSamePath
+        { get { return _pathFinderModel.CopyFilesWithSamePath; } set { _pathFinderModel.CopyFilesWithSamePath = value; } }
 
         public string IISStartString
         { get { return _commandLineModel.IISStartString; } set { _commandLineModel.IISStartString = value; } }
@@ -56,13 +64,27 @@ namespace BuilderHelperOnWPF.ViewModels
         public string IISStopString
         { get { return _commandLineModel.IISStopString; } set { _commandLineModel.IISStopString = value; } }
 
+        public bool InterfaceViewCommandLineForCopying
+        {
+            get { return _interfaceViewCommandLineForCopying; }
+            set
+            {
+                _interfaceViewCommandLineForCopying = value;
+                UpdateCommandLine();   
+            }
+        }
+
+        private void UpdateCommandLine()
+        {
+            CommandLineText = _interfaceViewCommandLineForCopying ? _commandLineModel.CommandLineTextToCopy : _commandLineModel.CommandLineTextToExecute;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CommandLineText)));
+        }
+
+        public bool RemoveDuplicates
+        { get { return _pathFinderModel.RemoveDuplicates; } set { _pathFinderModel.RemoveDuplicates = value; } }
+
         public bool RestartIIS
         { get { return _commandLineModel.RestartIIS; } set { _commandLineModel.RestartIIS = value; } }
-        
-        public bool CopyFilesWithSamePath
-        { get { return _pathFinderModel.CopyFilesWithSamePath; } set { _pathFinderModel.CopyFilesWithSamePath = value; } }
-        public bool RemoveDuplicates 
-        { get { return _pathFinderModel.RemoveDuplicates; } set { _pathFinderModel.RemoveDuplicates = value; } }
 
         public ObservableCollection<FileInfo> SourceFiles => new ObservableCollection<FileInfo>(_pathFinderModel.SourceFiles);
         public ObservableCollection<FolderNode> TargetFolders => new ObservableCollection<FolderNode>(_pathFinderModel.TargetFolders);
@@ -81,6 +103,17 @@ namespace BuilderHelperOnWPF.ViewModels
             _pathFinderModel.AddTargetFolders(fileNames);
         }
 
+        public async Task ExecuteCommandLine()
+        {
+            await CommandLineExecutor.ExecuteFromStringAsync(_commandLineModel.CommandLineTextToExecute);
+        }
+
+        public void GenerateCommandLine()
+        {
+            _commandLineModel.GenerateCommandLine(_pathFinderModel.FilesPathsCopyFromTo);
+            UpdateCommandLine();
+        }
+
         public void NewProject()
         {
             _pathFinderModel.Clear();
@@ -94,7 +127,7 @@ namespace BuilderHelperOnWPF.ViewModels
                 ProjectSave pS = JsonConvert.DeserializeObject<ProjectSave>(readStream.ReadToEnd());
                 _pathFinderModel.LoadFromSave(pS.PathFinderSave);
                 _commandLineModel.LoadFromSave(pS.CommandLineWorkerSettingsSave);
-                _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
+                GenerateCommandLine();
             }
         }
 
@@ -122,15 +155,6 @@ namespace BuilderHelperOnWPF.ViewModels
 
         #endregion Public Methods
 
-        #region Internal Methods
-
-        internal void GenerateCommandLine()
-        {
-            _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
-        }
-
-        #endregion Internal Methods
-
         #region Private Methods
 
         private void ModelChanged(object sender, PropertyChangedEventArgs e)
@@ -138,7 +162,7 @@ namespace BuilderHelperOnWPF.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(e.PropertyName));
             if (e.PropertyName == nameof(_pathFinderModel.FilesPathsCopyFromTo))
             {
-                _commandLineModel.GenerateCommandLineString(_pathFinderModel.FilesPathsCopyFromTo);
+                GenerateCommandLine();
             }
         }
 
