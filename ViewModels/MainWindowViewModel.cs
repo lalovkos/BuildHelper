@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BuilderHelperOnWPF.ViewModels
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : INotifyPropertyChanged, ISaveable<ProjectSave>
     {
         #region Public Fields
 
@@ -37,7 +37,7 @@ namespace BuilderHelperOnWPF.ViewModels
             _commandLineModel = new CommandLineWorkerModel();
             _commandLineModel.PropertyChanged += ModelChanged;
 
-            _interfaceViewCommandLineForCopying = true;
+            ShowBeautifiedCommandLine = true;
         }
 
         #endregion Public Constructors
@@ -64,7 +64,7 @@ namespace BuilderHelperOnWPF.ViewModels
         public string IISStopString
         { get { return _commandLineModel.IISStopString; } set { _commandLineModel.IISStopString = value; } }
 
-        public bool InterfaceViewCommandLineForCopying
+        public bool ShowBeautifiedCommandLine
         {
             get { return _interfaceViewCommandLineForCopying; }
             set
@@ -116,7 +116,7 @@ namespace BuilderHelperOnWPF.ViewModels
 
         public void NewProject()
         {
-            _pathFinderModel.Clear();
+            this.LoadFromSave(new ProjectSave());
         }
 
         public void OpenProjectFromFile(string fileName)
@@ -125,9 +125,7 @@ namespace BuilderHelperOnWPF.ViewModels
             using (var readStream = file.OpenText())
             {
                 ProjectSave pS = JsonConvert.DeserializeObject<ProjectSave>(readStream.ReadToEnd());
-                _pathFinderModel.LoadFromSave(pS.PathFinderSave);
-                _commandLineModel.LoadFromSave(pS.CommandLineWorkerSettingsSave);
-                GenerateCommandLine();
+                this.LoadFromSave(pS);
             }
         }
 
@@ -148,8 +146,7 @@ namespace BuilderHelperOnWPF.ViewModels
             var file = new FileInfo(fileName);
             using (var writeStream = file.CreateText())
             {
-                ProjectSave pS = new ProjectSave() { CommandLineWorkerSettingsSave = _commandLineModel.GetSave(), PathFinderSave = _pathFinderModel.GetSave() };
-                await writeStream.WriteAsync(JsonConvert.SerializeObject(pS));
+                await writeStream.WriteAsync(JsonConvert.SerializeObject(this.GetSave()));
             }
         }
 
@@ -164,6 +161,26 @@ namespace BuilderHelperOnWPF.ViewModels
             {
                 GenerateCommandLine();
             }
+        }
+
+        public ProjectSave GetSave()
+        {
+            ProjectSave pS = new ProjectSave() {
+                CommandLineWorkerSettingsSave = _commandLineModel.GetSave(), 
+                PathFinderSave = _pathFinderModel.GetSave(),
+                InterfaceSettings = new InterfaceSettings() 
+                {
+                    ShowBeautifiedCommandLine = ShowBeautifiedCommandLine
+                }
+            };
+            return pS;
+        }
+
+        public void LoadFromSave(ProjectSave save)
+        {
+            _pathFinderModel.LoadFromSave(save.PathFinderSave);
+            _commandLineModel.LoadFromSave(save.CommandLineWorkerSettingsSave);
+            ShowBeautifiedCommandLine = save.InterfaceSettings.ShowBeautifiedCommandLine;
         }
 
         #endregion Private Methods

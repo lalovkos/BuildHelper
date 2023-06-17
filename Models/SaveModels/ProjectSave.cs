@@ -3,9 +3,11 @@
 namespace BuilderHelperOnWPF.Models.SaveModels
 {
     [JsonObject]
-    internal class ProjectSave
+    public class ProjectSave
     {
         #region Public Properties
+        [JsonProperty("interfaceSettings")]
+        public InterfaceSettings InterfaceSettings { get; set; }
 
         [JsonProperty("commandLineWorkerSettingsSave")]
         public CommandLineWorkerSettingsSave CommandLineWorkerSettingsSave { get; set; }

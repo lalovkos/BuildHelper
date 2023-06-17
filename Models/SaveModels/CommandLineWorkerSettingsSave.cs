@@ -8,7 +8,7 @@ namespace BuilderHelperOnWPF.Models.SaveModels
         #region Public Properties
 
         [JsonProperty("copyCommandString")]
-        public string CopyCommandString { get; set; }
+        public string CopyCommandString { get; set; } 
 
         [JsonProperty("iISStartString")]
         public string IISStartString { get; set; }

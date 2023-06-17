@@ -94,7 +94,7 @@
                 <StackPanel>
                     <GroupBox Header="Interface settings">
                         <StackPanel>
-                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding InterfaceViewCommandLineForCopying}" Content="Show beautified commandline in textbox"/>
+                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding ShowBeautifiedCommandLine}" Content="Show beautified commandline in textbox" />
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Copy settings">

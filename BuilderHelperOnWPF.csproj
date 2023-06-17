@@ -90,6 +90,7 @@
     </Page>
     <Compile Include="Interfaces\ISaveable.cs" />
     <Compile Include="Models\PathFinderModel.cs" />
+    <Compile Include="Models\SaveModels\InterfaceSettings.cs" />
     <Compile Include="Models\SaveModels\PathFinderSave.cs" />
     <Compile Include="Models\SaveModels\CommandLineWorkerSettingsSave.cs" />
     <Compile Include="Models\CommandLineWorkerModel.cs" />

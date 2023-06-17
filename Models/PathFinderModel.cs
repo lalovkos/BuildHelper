@@ -11,23 +11,28 @@ namespace BuilderHelperOnWPF.Models
     {
         #region Private Fields
 
+        private bool _copyFilesWithSamePath;
         private List<(string, string)> _filesPathsCopyFromTo;
+        private bool _removeDuplicates;
         private List<FileInfo> _sourceFiles;
         private List<FolderNode> _targetFolders;
-        private bool _removeDuplicates;
-        private bool _copyFilesWithSamePath;
 
         #endregion Private Fields
 
         #region Public Constructors
 
-        public PathFinderModel()
+        public PathFinderModel() : this(new PathFinderSave())
         {
-            TargetFolders = new List<FolderNode>();
-            SourceFiles = new List<FileInfo>();
+        }
+
+        public PathFinderModel(PathFinderSave save)
+        {
+            TargetFolders = save.TargetFolders; ;
+            SourceFiles = save.SourceFiles; new List<FileInfo>();
             FilesPathsCopyFromTo = new List<(string, string)>();
-            RemoveDuplicates = true;
-            CopyFilesWithSamePath = false;
+            RemoveDuplicates = save.RemoveDuplicates;
+            CopyFilesWithSamePath = save.CopyFilesWithSamePath;
+            RecalculateTargetPaths();
         }
 
         #endregion Public Constructors
@@ -40,18 +45,20 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Properties
 
+        public bool CopyFilesWithSamePath
+        { get => _copyFilesWithSamePath; set { _copyFilesWithSamePath = value; NotifyPropertyChanged(nameof(CopyFilesWithSamePath)); } }
+
         public List<(string, string)> FilesPathsCopyFromTo
         { get => _filesPathsCopyFromTo; private set { _filesPathsCopyFromTo = value; NotifyPropertyChanged(nameof(FilesPathsCopyFromTo)); } }
+
+        public bool RemoveDuplicates
+        { get => _removeDuplicates; set { _removeDuplicates = value; NotifyPropertyChanged(nameof(RemoveDuplicates)); } }
 
         public List<FileInfo> SourceFiles
         { get => _sourceFiles; private set { _sourceFiles = value; NotifyPropertyChanged(nameof(SourceFiles)); } }
 
         public List<FolderNode> TargetFolders
         { get => _targetFolders; private set { _targetFolders = value; NotifyPropertyChanged(nameof(TargetFolders)); } }
-
-        public bool RemoveDuplicates { get => _removeDuplicates; set { _removeDuplicates = value; NotifyPropertyChanged(nameof(RemoveDuplicates)); } }
-
-        public bool CopyFilesWithSamePath { get => _copyFilesWithSamePath; set { _copyFilesWithSamePath = value; NotifyPropertyChanged(nameof(CopyFilesWithSamePath)); } }
 
         #endregion Public Properties
 
@@ -74,15 +81,6 @@ namespace BuilderHelperOnWPF.Models
             NotifyPropertyChanged(nameof(TargetFolders));
         }
 
-        public void Clear()
-        {
-            TargetFolders = new List<FolderNode>();
-            SourceFiles = new List<FileInfo>();
-            FilesPathsCopyFromTo = new List<(string, string)>();
-            RemoveDuplicates = true;
-            CopyFilesWithSamePath = false;
-        }
-
         public PathFinderSave GetSave()
         {
             var save = new PathFinderSave()
@@ -97,9 +95,9 @@ namespace BuilderHelperOnWPF.Models
 
         public void LoadFromSave(PathFinderSave save)
         {
-            Clear();
             TargetFolders = save.TargetFolders;
             SourceFiles = save.SourceFiles;
+
             RecalculateTargetPaths();
         }
 
@@ -180,15 +178,15 @@ namespace BuilderHelperOnWPF.Models
             if (CopyFilesWithSamePath)
             {
                 query = (from s in sources
-                             join t in targets on s.Name equals t.Name
-                             select (s.FullName, t.FullName));
+                         join t in targets on s.Name equals t.Name
+                         select (s.FullName, t.FullName));
             }
-            else 
+            else
             {
                 query = (from s in sources
-                             join t in targets on s.Name equals t.Name
-                             where s.FullName != t.FullName
-                             select (s.FullName, t.FullName));
+                         join t in targets on s.Name equals t.Name
+                         where s.FullName != t.FullName
+                         select (s.FullName, t.FullName));
             }
 
             FilesPathsCopyFromTo.AddRange(query);
