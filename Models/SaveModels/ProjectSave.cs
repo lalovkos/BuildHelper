@@ -6,14 +6,15 @@ namespace BuilderHelperOnWPF.Models.SaveModels
     public class ProjectSave
     {
         #region Public Properties
-        [JsonProperty("interfaceSettings")]
-        public InterfaceSettings InterfaceSettings { get; set; }
 
         [JsonProperty("commandLineWorkerSettingsSave")]
-        public CommandLineWorkerSettingsSave CommandLineWorkerSettingsSave { get; set; }
+        public CommandLineWorkerSettingsSave CommandLineWorkerSettingsSave { get; set; } = new CommandLineWorkerSettingsSave();
+
+        [JsonProperty("interfaceSettings")]
+        public InterfaceSettings InterfaceSettings { get; set; } = new InterfaceSettings();
 
         [JsonProperty("pathFinderSave")]
-        public PathFinderSave PathFinderSave { get; set; }
+        public PathFinderSave PathFinderSave { get; set; } = new PathFinderSave();
 
         #endregion Public Properties
     }

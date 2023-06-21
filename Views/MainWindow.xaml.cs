@@ -132,7 +132,7 @@ namespace BuilderHelperOnWPF
                 dialog.Title = "Select file to save project data";
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    await _viewModel.SaveFileIntoProject(dialog.FileName);
+                    await _viewModel.SaveProjectIntoFile(dialog.FileName);
                 }
             }
         }

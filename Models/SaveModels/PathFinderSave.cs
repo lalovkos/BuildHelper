@@ -9,17 +9,17 @@ namespace BuilderHelperOnWPF.Models.SaveModels
     {
         #region Public Properties
 
-        [JsonProperty("sourceFiles")]
-        public List<FileInfo> SourceFiles { get; set; } = new List<FileInfo>();
-
-        [JsonProperty("targetFolders")]
-        public List<FolderNode> TargetFolders { get; set; } = new List<FolderNode>();
-
         [JsonProperty("copyFilesWithSamePath")]
         public bool CopyFilesWithSamePath { get; set; } = false;
 
         [JsonProperty("removeDuplicates")]
         public bool RemoveDuplicates { get; set; } = true;
+
+        [JsonProperty("sourceFiles")]
+        public List<FileInfo> SourceFiles { get; set; } = new List<FileInfo>();
+
+        [JsonProperty("targetFolders")]
+        public List<FolderNode> TargetFolders { get; set; } = new List<FolderNode>();
 
         #endregion Public Properties
     }

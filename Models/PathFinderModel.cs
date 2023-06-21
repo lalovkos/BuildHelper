@@ -27,12 +27,7 @@ namespace BuilderHelperOnWPF.Models
 
         public PathFinderModel(PathFinderSave save)
         {
-            TargetFolders = save.TargetFolders; ;
-            SourceFiles = save.SourceFiles; new List<FileInfo>();
-            FilesPathsCopyFromTo = new List<(string, string)>();
-            RemoveDuplicates = save.RemoveDuplicates;
-            CopyFilesWithSamePath = save.CopyFilesWithSamePath;
-            RecalculateTargetPaths();
+            LoadFromSave(save);
         }
 
         #endregion Public Constructors
@@ -97,7 +92,8 @@ namespace BuilderHelperOnWPF.Models
         {
             TargetFolders = save.TargetFolders;
             SourceFiles = save.SourceFiles;
-
+            RemoveDuplicates = save.RemoveDuplicates;
+            CopyFilesWithSamePath = save.CopyFilesWithSamePath;
             RecalculateTargetPaths();
         }
 
@@ -175,7 +171,7 @@ namespace BuilderHelperOnWPF.Models
                 return;
 
             IEnumerable<(string, string)> query;
-            if (CopyFilesWithSamePath)
+            if (!CopyFilesWithSamePath)
             {
                 query = (from s in sources
                          join t in targets on s.Name equals t.Name

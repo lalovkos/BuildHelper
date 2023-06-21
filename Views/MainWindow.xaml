@@ -109,7 +109,7 @@
                     </GroupBox>
                     <GroupBox Header="Source files settings">
                         <StackPanel>
-                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding CopyFilesWithSamePath}" Content="Don't copy files if source and target paths are same" />
+                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding CopyFilesWithSamePath}" Content="Copy files if source and target paths are same" />
                             <CheckBox Margin="0,4,0,0" IsChecked="{Binding RemoveDuplicates}" Content="Remove duplicates by name from source files" />
                         </StackPanel>
                     </GroupBox>

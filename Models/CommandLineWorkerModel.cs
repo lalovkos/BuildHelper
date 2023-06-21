@@ -8,15 +8,6 @@ namespace BuilderHelperOnWPF.Models
 {
     public class CommandLineWorkerModel : INotifyPropertyChanged, ISaveable<CommandLineWorkerSettingsSave>
     {
-        #region Public Fields
-
-        public const string DEFAULT_COPY_STRING = "xcopy /Y /Q ";
-        public const string DEFAULT_IIS_START_STRING = "iisreset /start localhost";
-        public const string DEFAULT_IIS_STOP_STRING = "iisreset /stop /noforce localhost";
-        public const bool RESTART_IIS = true;
-
-        #endregion Public Fields
-
         #region Private Fields
 
         private string _commandLineTextToCopy;
@@ -30,16 +21,13 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Constructors
 
-        public CommandLineWorkerModel()
+        public CommandLineWorkerModel() : this(new CommandLineWorkerSettingsSave())
         {
-            CopyCommandString = DEFAULT_COPY_STRING;
-            IISStopString = DEFAULT_IIS_STOP_STRING;
-            IISStartString = DEFAULT_IIS_START_STRING;
-            RestartIIS = RESTART_IIS;
-            CommandLineTextToCopy = "";
-            CommandLineTextToCopy = "";
-            GenerateCommandLineStringForCopying();
-            GenerateCommandLineStringForCopying();
+        }
+
+        public CommandLineWorkerModel(CommandLineWorkerSettingsSave commandLineWorkerSettingsSave)
+        {
+            LoadFromSave(commandLineWorkerSettingsSave);
         }
 
         #endregion Public Constructors
@@ -74,7 +62,7 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Methods
 
-        public void GenerateCommandLine(List<(string, string)> filesPathsCopyFromTo)
+        public void GenerateCommandLine(List<(string, string)> filesPathsCopyFromTo = null)
         {
             CommandLineTextToCopy = GenerateCommandLineStringForCopying(filesPathsCopyFromTo);
             CommandLineTextToExecute = GenerateCommandLineStringForExecuting(filesPathsCopyFromTo);
@@ -98,6 +86,7 @@ namespace BuilderHelperOnWPF.Models
             IISStartString = save.IISStartString;
             IISStopString = save.IISStopString;
             RestartIIS = save.RestartIIS;
+            GenerateCommandLine();
         }
 
         #endregion Public Methods
