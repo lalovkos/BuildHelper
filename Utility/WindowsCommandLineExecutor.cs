@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace BuilderHelperOnWPF.Utility
 {
-    internal static class CommandLineExecutor
+    public class WindowsCommandLineExecutor : ICommandLineExecutor
     {
         #region Public Methods
-        public async static Task ExecuteFromStringAsync(string command)
+        public async Task ExecuteFromStringAsync(string command)
         {
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -16,7 +16,7 @@ namespace BuilderHelperOnWPF.Utility
             startInfo.Verb = "runas";
             startInfo.Arguments = "/user:Administrator \"cmd /K" + " " + command + "\"";
             process.StartInfo = startInfo;
-            await Task.Run ( () => process.Start());
+            await Task.Run(() => process.Start());
         }
 
         #endregion Public Methods

@@ -1,4 +1,5 @@
 ﻿using BuilderHelperOnWPF.Models.SaveModels;
+using BuilderHelperOnWPF.Utility;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -16,7 +17,8 @@ namespace BuilderHelperOnWPF.Models
         private string _iISStartString;
         private string _iISStopString;
         private bool _restartIIS;
-
+        private readonly ICommandLineExecutor _commandLineExecutor = new WindowsCommandLineExecutor();
+        private readonly ICommandLineBuilder _commandLineBuilder = new WindowsCommandLineBuilder();
         #endregion Private Fields
 
         #region Public Constructors
@@ -27,6 +29,7 @@ namespace BuilderHelperOnWPF.Models
 
         public CommandLineWorkerModel(CommandLineWorkerSettingsSave commandLineWorkerSettingsSave)
         {
+            
             LoadFromSave(commandLineWorkerSettingsSave);
         }
 
@@ -64,8 +67,8 @@ namespace BuilderHelperOnWPF.Models
 
         public void GenerateCommandLine(List<(string, string)> filesPathsCopyFromTo = null)
         {
-            CommandLineTextToCopy = GenerateCommandLineStringForCopying(filesPathsCopyFromTo);
-            CommandLineTextToExecute = GenerateCommandLineStringForExecuting(filesPathsCopyFromTo);
+            CommandLineTextToCopy = _commandLineBuilder.GenerateCommandLine(filesPathsCopyFromTo); //GenerateCommandLineStringForCopying(filesPathsCopyFromTo);
+            //CommandLineTextToExecute = _commandLineBuilder.GenerateCommandLine(filesPathsCopyFromTo);// GenerateCommandLineStringForExecuting(filesPathsCopyFromTo);
         }
 
         public CommandLineWorkerSettingsSave GetSave()
@@ -92,54 +95,6 @@ namespace BuilderHelperOnWPF.Models
         #endregion Public Methods
 
         #region Private Methods
-
-        private string GenerateCommandLineStringForCopying(List<(string, string)> fileToCopyInfos = null)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (RestartIIS)
-            {
-                sb.AppendLine(IISStopString);
-            }
-
-            if (fileToCopyInfos != null)
-            {
-                for (int i = 0; i < fileToCopyInfos.Count; i++)
-                {
-                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2;
-                    sb.AppendLine(st);
-                }
-            }
-
-            if (RestartIIS)
-            {
-                sb.AppendLine(IISStartString);
-            }
-            return sb.ToString();
-        }
-
-        private string GenerateCommandLineStringForExecuting(List<(string, string)> fileToCopyInfos = null)
-        {
-            StringBuilder sb = new StringBuilder();
-            if (RestartIIS)
-            {
-                sb.Append(IISStopString + " & ");
-            }
-
-            if (fileToCopyInfos != null)
-            {
-                for (int i = 0; i < fileToCopyInfos.Count; i++)
-                {
-                    var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2 + "* & ";
-                    sb.Append(st);
-                }
-            }
-
-            if (RestartIIS)
-            {
-                sb.Append(IISStartString);
-            }
-            return sb.ToString();
-        }
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {

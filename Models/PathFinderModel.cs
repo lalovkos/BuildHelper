@@ -12,7 +12,7 @@ namespace BuilderHelperOnWPF.Models
         #region Private Fields
 
         private bool _copyFilesWithSamePath;
-        private List<(string, string)> _filesPathsCopyFromTo;
+        private List<(string, string)> _filesPathsCopyFromTo = new List<(string, string)>();
         private bool _removeDuplicates;
         private List<FileInfo> _sourceFiles;
         private List<FolderNode> _targetFolders;

@@ -99,7 +99,7 @@ namespace BuilderHelperOnWPF.ViewModels
 
         public async Task ExecuteCommandLine()
         {
-            await CommandLineExecutor.ExecuteFromStringAsync(_commandLineModel.CommandLineTextToExecute);
+           // await _windowsCommandLineExecutor.ExecuteFromStringAsync(_commandLineModel.CommandLineTextToExecute);
         }
 
         public void GenerateCommandLine()
