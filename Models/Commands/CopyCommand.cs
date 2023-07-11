@@ -13,7 +13,7 @@
 
         #region Private Methods
 
-        private static string GenerateBody(string copyCommand, string pathFrom, string pathTo) => "" + copyCommand + " " + pathFrom + " " + pathTo;
+        private static string GenerateBody(string copyCommand, string pathFrom, string pathTo) => copyCommand + " " + pathFrom + " " + pathTo;
 
         #endregion Private Methods
     }

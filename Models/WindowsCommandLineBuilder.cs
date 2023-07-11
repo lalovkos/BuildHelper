@@ -1,93 +1,82 @@
 ﻿using BuilderHelperOnWPF.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
-
 namespace BuilderHelperOnWPF.Models
 {
-
     internal class WindowsCommandLineBuilder : ICommandLineBuilder
     {
-        public string BetweenCommandsString;
-        public WindowsCommandLineBuilder(string betweenCommandsString = "")
-        {
+        #region Public Properties
 
+        private ICLCommand[] _endCommands = new ICLCommand[0];
+        private ICLCommand[] _startingCommands = new ICLCommand[0];
+        private List<CommandBlock> _mainCommandBlocks = new List<CommandBlock>();
+        private ICLCommand _commandBetweenCommands = new BaseCommand(" ");
+        private CommandLineElement _commandLine = new EmptyCommand();
+
+        #endregion Public Properties
+
+        #region Private Methods
+
+        private CommandBlock GenerateEndBlock()
+        {
+            return new CommandBlock(_endCommands, _commandBetweenCommands);
+        } 
+
+        private CommandBlock GenerateHeaderBlock()
+        {
+            return new CommandBlock(_startingCommands, _commandBetweenCommands);
         }
 
-        public string GenerateCommandLine(List<(string, string)> pathsFromTo = null)
-        {
-            //Generating header
-            CommandBlock header = new CommandBlock()
-            {
-                Commands = new ICommand[] { new BaseCommand("Start") },
-                Order = 999,
-            };
-
-            //Generating main blocks
-            CommandBlock main = new CommandBlock();
-            if (pathsFromTo != null)
-            {
-
-                main.Commands = GetCommandArray(pathsFromTo);
-                main.StringBetweenLines = " *& ";
-            }
-
-            //Generating end
-            CommandBlock end = new CommandBlock()
-            {
-                Commands = new ICommand[] { new BaseCommand("Finish") },
-                Order = -1000
-            };
-
-            return GenerateCommandLineForCopying(new CommandBlock[] { header, main, end });
-        }
-
-        private ICommand[] GetCommandArray(List<(string, string)> pathsFromTo)
+        private ICLCommand[] GetCopyCommandArray(IEnumerable<(string, string)> pathsFromTo)
         {
             var result = new List<CopyCommand>();
-            foreach (var path in pathsFromTo) 
+            foreach (var path in pathsFromTo)
             {
                 result.Add(new CopyCommand("Copy ", path.Item1, path.Item2));
             }
             return result.ToArray();
         }
 
-        private string GenerateCommandLineForCopying(CommandBlock[] commandBlocks)
+        private void ReconstructCommand() 
         {
-            CommandLineElement commandLineResult = new EmptyCommandLine();
-            Array.Sort(commandBlocks);
-            foreach (var cmdBl in commandBlocks) 
+            _commandLine = new EmptyCommand();
+            _commandLine = new BlockDecorator(_commandLine, GenerateHeaderBlock());
+            if (_startingCommands.Length > 0) _commandLine = new BaseCommandDecorator(_commandLine, _commandBetweenCommands);
+            foreach (var block in _mainCommandBlocks) 
             {
-                commandLineResult = new DecorateWithBlock(commandLineResult, cmdBl);
+                _commandLine = new BlockDecorator(_commandLine, block);
             }
 
-            return commandLineResult.FormCommandLine();                
+            if (_mainCommandBlocks.Count > 0) _commandLine = new BaseCommandDecorator(_commandLine, _commandBetweenCommands);
+            _commandLine = new BlockDecorator(_commandLine, GenerateEndBlock());
         }
 
-        private string GenerateCommandLineStringForExecuting(List<(string, string)> fileToCopyInfos = null)
+        public void SetHeaderCommands(ICLCommand[] headerCommands)
         {
-            StringBuilder sb = new StringBuilder();
-            //if (RestartIIS)
-            //{
-            //    sb.Append(IISStopString + " & ");
-            //}
-
-            //if (fileToCopyInfos != null)
-            //{
-            //    for (int i = 0; i < fileToCopyInfos.Count; i++)
-            //    {
-            //        var st = CopyCommandString + " " + fileToCopyInfos[i].Item1 + " " + fileToCopyInfos[i].Item2;
-            //        sb.Append(st);
-            //        if (i < fileToCopyInfos.Count) { sb.Append("* & "); }; //Last line shouldn't have *&
-            //    }
-            //}
-
-            //if (RestartIIS)
-            //{
-            //    if (sb.Length == 0) sb.Append("* & ");
-            //    sb.Append(IISStartString);
-            //}
-            return sb.ToString();
+            _startingCommands = headerCommands;
         }
+
+        public void AddCopyingCommands(IEnumerable<(string, string)> pathsFromTo)
+        {
+            _mainCommandBlocks.Add(new CommandBlock(GetCopyCommandArray(pathsFromTo), _commandBetweenCommands));
+            ReconstructCommand();
+        }
+
+        public void SetCommandBetweenCommands(ICLCommand command)
+        {
+            _commandBetweenCommands = command;
+        }
+
+        public void SetEndCommands(ICLCommand[] endCommands)
+        {
+            _endCommands = endCommands;
+        }
+
+        public string GenerateCommandLine()
+        {
+            if (_commandLine is EmptyCommand) ReconstructCommand();
+            return _commandLine.FormCommandLine();
+        }
+
+        #endregion Private Methods
     }
 }

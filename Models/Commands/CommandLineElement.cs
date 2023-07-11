@@ -1,7 +1,11 @@
 ﻿namespace BuilderHelperOnWPF.Models
 {
-    public abstract class CommandLineElement 
+    public abstract class CommandLineElement
     {
-        public abstract string FormCommandLine();    
+        #region Public Methods
+
+        public abstract string FormCommandLine();
+
+        #endregion Public Methods
     }
 }

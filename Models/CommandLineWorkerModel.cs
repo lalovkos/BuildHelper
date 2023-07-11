@@ -1,9 +1,10 @@
-﻿using BuilderHelperOnWPF.Models.SaveModels;
+﻿using BuilderHelperOnWPF.Interfaces;
+using BuilderHelperOnWPF.Models.SaveModels;
 using BuilderHelperOnWPF.Utility;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Windows;
 
 namespace BuilderHelperOnWPF.Models
 {
@@ -11,14 +12,15 @@ namespace BuilderHelperOnWPF.Models
     {
         #region Private Fields
 
+        private readonly ICommandLineBuilder _commandLineBuilder = new WindowsCommandLineBuilder();
+        private readonly ICommandLineExecutor _commandLineExecutor = new WindowsCommandLineExecutor();
         private string _commandLineTextToCopy;
         private string _commandLineTextToExecute;
         private string _copyCommandString;
         private string _iISStartString;
         private string _iISStopString;
         private bool _restartIIS;
-        private readonly ICommandLineExecutor _commandLineExecutor = new WindowsCommandLineExecutor();
-        private readonly ICommandLineBuilder _commandLineBuilder = new WindowsCommandLineBuilder();
+
         #endregion Private Fields
 
         #region Public Constructors
@@ -29,7 +31,6 @@ namespace BuilderHelperOnWPF.Models
 
         public CommandLineWorkerModel(CommandLineWorkerSettingsSave commandLineWorkerSettingsSave)
         {
-            
             LoadFromSave(commandLineWorkerSettingsSave);
         }
 
@@ -67,8 +68,15 @@ namespace BuilderHelperOnWPF.Models
 
         public void GenerateCommandLine(List<(string, string)> filesPathsCopyFromTo = null)
         {
-            CommandLineTextToCopy = _commandLineBuilder.GenerateCommandLine(filesPathsCopyFromTo); //GenerateCommandLineStringForCopying(filesPathsCopyFromTo);
-            //CommandLineTextToExecute = _commandLineBuilder.GenerateCommandLine(filesPathsCopyFromTo);// GenerateCommandLineStringForExecuting(filesPathsCopyFromTo);
+            var commandBetween = new BaseCommand(" *& ");
+            _commandLineBuilder.SetCommandBetweenCommands(commandBetween);
+            _commandLineBuilder.SetHeaderCommands(new ICLCommand[] { new BaseCommand("Start")} );
+            if (filesPathsCopyFromTo != null) _commandLineBuilder.AddCopyingCommands(filesPathsCopyFromTo);
+            _commandLineBuilder.SetEndCommands(new ICLCommand[] { new BaseCommand("Finish") });
+            var string1 = _commandLineBuilder.GenerateCommandLine();
+            commandBetween.SetCommand(" ");
+            var string2 = _commandLineBuilder.GenerateCommandLine();
+            int i = 0;
         }
 
         public CommandLineWorkerSettingsSave GetSave()

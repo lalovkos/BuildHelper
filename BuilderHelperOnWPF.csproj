@@ -103,15 +103,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Interfaces\ICommand.cs" />
+    <Compile Include="Interfaces\ICLCommand.cs" />
     <Compile Include="Interfaces\ISaveable.cs" />
     <Compile Include="Models\CommandBlock.cs" />
-    <Compile Include="Models\Commands\DecorateWithBlock.cs" />
+    <Compile Include="Models\Commands\BaseCommandDecorator.cs" />
+    <Compile Include="Models\Commands\BlockDecorator.cs" />
     <Compile Include="Models\Commands\CommandLineDecorator.cs" />
     <Compile Include="Models\Commands\CommandLineElement.cs" />
     <Compile Include="Models\Commands\CopyCommand.cs" />
     <Compile Include="Models\Commands\BaseCommand.cs" />
-    <Compile Include="Models\Commands\EmptyCommandLine.cs" />
+    <Compile Include="Models\Commands\EmptyCommand.cs" />
     <Compile Include="Interfaces\ICommandLineBuilder.cs" />
     <Compile Include="Models\PathFinderModel.cs" />
     <Compile Include="Models\SaveModels\InterfaceSettings.cs" />
