@@ -1,6 +1,6 @@
 ﻿namespace BuilderHelperOnWPF.Interfaces
 {
-    internal interface ICLCommand
+    public interface ICLCommand
     {
         #region Public Methods
 

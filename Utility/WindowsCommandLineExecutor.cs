@@ -6,6 +6,7 @@ namespace BuilderHelperOnWPF.Utility
     public class WindowsCommandLineExecutor : ICommandLineExecutor
     {
         #region Public Methods
+
         public async Task ExecuteFromStringAsync(string command)
         {
             Process process = new Process();

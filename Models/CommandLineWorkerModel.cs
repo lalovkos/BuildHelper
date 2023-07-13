@@ -4,7 +4,7 @@ using BuilderHelperOnWPF.Utility;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using System.Threading.Tasks;
 
 namespace BuilderHelperOnWPF.Models
 {
@@ -66,17 +66,28 @@ namespace BuilderHelperOnWPF.Models
 
         #region Public Methods
 
+        public void ExecuteCommandLine()
+        {
+            _commandLineExecutor.ExecuteFromStringAsync(_commandLineTextToExecute);
+        }
+
+        public async Task ExecuteCommandLineAsync()
+        {
+            await _commandLineExecutor.ExecuteFromStringAsync(_commandLineTextToExecute);
+        }
+
         public void GenerateCommandLine(List<(string, string)> filesPathsCopyFromTo = null)
         {
-            var commandBetween = new BaseCommand(" *& ");
-            _commandLineBuilder.SetCommandBetweenCommands(commandBetween);
-            _commandLineBuilder.SetHeaderCommands(new ICLCommand[] { new BaseCommand("Start")} );
-            if (filesPathsCopyFromTo != null) _commandLineBuilder.AddCopyingCommands(filesPathsCopyFromTo);
-            _commandLineBuilder.SetEndCommands(new ICLCommand[] { new BaseCommand("Finish") });
-            var string1 = _commandLineBuilder.GenerateCommandLine();
-            commandBetween.SetCommand(" ");
-            var string2 = _commandLineBuilder.GenerateCommandLine();
-            int i = 0;
+            _commandLineBuilder.SetHeaderCommands(RestartIIS ? new string[] { IISStartString } : new string[] { });
+            _commandLineBuilder.SetEndCommands(RestartIIS ? new string[] { IISStopString } : new string[] { });
+
+            if (filesPathsCopyFromTo != null) _commandLineBuilder.SetMainCommands(CommandLineHelper.FormCopingCommands("CopyCommandString ", filesPathsCopyFromTo));
+
+            _commandLineBuilder.SetCommandBetweenCommands(" *& ");
+            CommandLineTextToExecute = _commandLineBuilder.GenerateCommandLine();
+
+            _commandLineBuilder.SetCommandBetweenCommands("\n");
+            CommandLineTextToCopy = _commandLineBuilder.GenerateCommandLine();
         }
 
         public CommandLineWorkerSettingsSave GetSave()

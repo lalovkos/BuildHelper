@@ -1,80 +1,90 @@
 ﻿using BuilderHelperOnWPF.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
+
 namespace BuilderHelperOnWPF.Models
 {
-    internal class WindowsCommandLineBuilder : ICommandLineBuilder
+    internal class WindowsCommandLineBuilder : ICommandLineBuilder, ICLCommand
     {
-        #region Public Properties
+        #region Private Fields
 
-        private ICLCommand[] _endCommands = new ICLCommand[0];
-        private ICLCommand[] _startingCommands = new ICLCommand[0];
-        private List<CommandBlock> _mainCommandBlocks = new List<CommandBlock>();
-        private ICLCommand _commandBetweenCommands = new BaseCommand(" ");
+        private BaseCommand _commandBetweenCommands = new BaseCommand(" ");
         private CommandLineElement _commandLine = new EmptyCommand();
+        private ICLCommand[] _endCommands = new ICLCommand[0];
+        private List<CommandBlock> _mainCommandBlocks = new List<CommandBlock>();
+        private ICLCommand[] _startingCommands = new ICLCommand[0];
 
-        #endregion Public Properties
+        #endregion Private Fields
+
+        #region Public Methods
+
+        public string GenerateCommandLine()
+        {
+            if (_commandLine is EmptyCommand) ReconstructCommand();
+            return _commandLine.FormCommandLine();
+        }
+
+        public string GetCommand()
+        {
+            return GenerateCommandLine();
+        }
+
+        public void SetCommandBetweenCommands(string command)
+        {
+            _commandBetweenCommands.SetCommand(command);
+        }
+
+        public void SetEndCommands(IEnumerable<string> endCommands)
+        {
+            _endCommands = endCommands.Select(command => new BaseCommand(command)).ToArray();
+        }
+
+        public void SetHeaderCommands(IEnumerable<string> headerCommands)
+        {
+            _startingCommands = headerCommands.Select(command => new BaseCommand(command)).ToArray();
+        }
+
+        public void SetMainCommands(IEnumerable<string> MainCommands)
+        {
+            _mainCommandBlocks = new List<CommandBlock>
+            {
+                new CommandBlock(GetCommandArray(MainCommands), _commandBetweenCommands)
+            };
+            ReconstructCommand();
+        }
+
+        #endregion Public Methods
 
         #region Private Methods
 
         private CommandBlock GenerateEndBlock()
         {
             return new CommandBlock(_endCommands, _commandBetweenCommands);
-        } 
+        }
 
         private CommandBlock GenerateHeaderBlock()
         {
             return new CommandBlock(_startingCommands, _commandBetweenCommands);
         }
 
-        private ICLCommand[] GetCopyCommandArray(IEnumerable<(string, string)> pathsFromTo)
+        private ICLCommand[] GetCommandArray(IEnumerable<string> commands)
         {
-            var result = new List<CopyCommand>();
-            foreach (var path in pathsFromTo)
-            {
-                result.Add(new CopyCommand("Copy ", path.Item1, path.Item2));
-            }
-            return result.ToArray();
+            return commands.Select(command => new BaseCommand(command)).ToArray();
         }
 
-        private void ReconstructCommand() 
+        private void ReconstructCommand()
         {
             _commandLine = new EmptyCommand();
             _commandLine = new BlockDecorator(_commandLine, GenerateHeaderBlock());
             if (_startingCommands.Length > 0) _commandLine = new BaseCommandDecorator(_commandLine, _commandBetweenCommands);
-            foreach (var block in _mainCommandBlocks) 
+
+            foreach (var block in _mainCommandBlocks)
             {
                 _commandLine = new BlockDecorator(_commandLine, block);
             }
 
             if (_mainCommandBlocks.Count > 0) _commandLine = new BaseCommandDecorator(_commandLine, _commandBetweenCommands);
             _commandLine = new BlockDecorator(_commandLine, GenerateEndBlock());
-        }
-
-        public void SetHeaderCommands(ICLCommand[] headerCommands)
-        {
-            _startingCommands = headerCommands;
-        }
-
-        public void AddCopyingCommands(IEnumerable<(string, string)> pathsFromTo)
-        {
-            _mainCommandBlocks.Add(new CommandBlock(GetCopyCommandArray(pathsFromTo), _commandBetweenCommands));
-            ReconstructCommand();
-        }
-
-        public void SetCommandBetweenCommands(ICLCommand command)
-        {
-            _commandBetweenCommands = command;
-        }
-
-        public void SetEndCommands(ICLCommand[] endCommands)
-        {
-            _endCommands = endCommands;
-        }
-
-        public string GenerateCommandLine()
-        {
-            if (_commandLine is EmptyCommand) ReconstructCommand();
-            return _commandLine.FormCommandLine();
         }
 
         #endregion Private Methods

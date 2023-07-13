@@ -103,6 +103,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Interfaces\CommandLineHelper.cs" />
     <Compile Include="Interfaces\ICLCommand.cs" />
     <Compile Include="Interfaces\ISaveable.cs" />
     <Compile Include="Models\CommandBlock.cs" />

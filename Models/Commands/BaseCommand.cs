@@ -17,12 +17,6 @@ namespace BuilderHelperOnWPF.Models
             _body = body;
         }
 
-        public BaseCommand(ref string body)
-        {
-            _body = body;
-            body = "sdadsd";
-        }
-
         #endregion Public Constructors
 
         #region Public Methods
@@ -37,7 +31,7 @@ namespace BuilderHelperOnWPF.Models
             return _body;
         }
 
-        public void SetCommand(string command) 
+        public void SetCommand(string command)
         {
             _body = command;
         }
