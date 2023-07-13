@@ -1,6 +1,5 @@
 ﻿using BuilderHelperOnWPF.Models;
 using BuilderHelperOnWPF.Models.SaveModels;
-using BuilderHelperOnWPF.Utility;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -99,7 +98,7 @@ namespace BuilderHelperOnWPF.ViewModels
 
         public async Task ExecuteCommandLine()
         {
-           // await _windowsCommandLineExecutor.ExecuteFromStringAsync(_commandLineModel.CommandLineTextToExecute);
+            await _commandLineModel.ExecuteCommandLineAsync();
         }
 
         public void GenerateCommandLine()

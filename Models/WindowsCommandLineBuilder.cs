@@ -10,23 +10,18 @@ namespace BuilderHelperOnWPF.Models
 
         private BaseCommand _commandBetweenCommands = new BaseCommand(" ");
         private CommandLineElement _commandLine = new EmptyCommand();
-        private ICLCommand[] _endCommands = new ICLCommand[0];
-        private List<CommandBlock> _mainCommandBlocks = new List<CommandBlock>();
-        private ICLCommand[] _startingCommands = new ICLCommand[0];
+        private List<ICLCommand> _endCommands = new List<ICLCommand>();
+        private List<ICLCommand> _mainCommandBlocks = new List<ICLCommand>();
+        private List<ICLCommand> _startingCommands = new List<ICLCommand>();
 
         #endregion Private Fields
 
         #region Public Methods
 
-        public string GenerateCommandLine()
+        public string GetCommand()
         {
             if (_commandLine is EmptyCommand) ReconstructCommand();
             return _commandLine.FormCommandLine();
-        }
-
-        public string GetCommand()
-        {
-            return GenerateCommandLine();
         }
 
         public void SetCommandBetweenCommands(string command)
@@ -36,55 +31,36 @@ namespace BuilderHelperOnWPF.Models
 
         public void SetEndCommands(IEnumerable<string> endCommands)
         {
-            _endCommands = endCommands.Select(command => new BaseCommand(command)).ToArray();
+            _endCommands.Clear();
+            _endCommands.AddRange(endCommands.Select(command => new BaseCommand(command)));
         }
 
         public void SetHeaderCommands(IEnumerable<string> headerCommands)
         {
-            _startingCommands = headerCommands.Select(command => new BaseCommand(command)).ToArray();
+            _startingCommands.Clear();
+            _startingCommands.AddRange(headerCommands.Select(command => new BaseCommand(command)));
         }
 
-        public void SetMainCommands(IEnumerable<string> MainCommands)
+        public void SetMainCommands(IEnumerable<string> mainCommands)
         {
-            _mainCommandBlocks = new List<CommandBlock>
-            {
-                new CommandBlock(GetCommandArray(MainCommands), _commandBetweenCommands)
-            };
-            ReconstructCommand();
+            _mainCommandBlocks.Clear();
+            _mainCommandBlocks.AddRange(mainCommands.Select(command => new BaseCommand(command)));
         }
 
         #endregion Public Methods
 
         #region Private Methods
 
-        private CommandBlock GenerateEndBlock()
-        {
-            return new CommandBlock(_endCommands, _commandBetweenCommands);
-        }
-
-        private CommandBlock GenerateHeaderBlock()
-        {
-            return new CommandBlock(_startingCommands, _commandBetweenCommands);
-        }
-
-        private ICLCommand[] GetCommandArray(IEnumerable<string> commands)
-        {
-            return commands.Select(command => new BaseCommand(command)).ToArray();
-        }
-
         private void ReconstructCommand()
         {
             _commandLine = new EmptyCommand();
-            _commandLine = new BlockDecorator(_commandLine, GenerateHeaderBlock());
-            if (_startingCommands.Length > 0) _commandLine = new BaseCommandDecorator(_commandLine, _commandBetweenCommands);
-
-            foreach (var block in _mainCommandBlocks)
+            var commandBlocks = new List<ICLCommand>
             {
-                _commandLine = new BlockDecorator(_commandLine, block);
-            }
-
-            if (_mainCommandBlocks.Count > 0) _commandLine = new BaseCommandDecorator(_commandLine, _commandBetweenCommands);
-            _commandLine = new BlockDecorator(_commandLine, GenerateEndBlock());
+                new CommandBlock(_startingCommands, _commandBetweenCommands),
+                new CommandBlock(_mainCommandBlocks, _commandBetweenCommands),
+                new CommandBlock(_endCommands, _commandBetweenCommands)
+            };
+            _commandLine = new BlockDecorator(_commandLine, new CommandBlock(commandBlocks.ToArray(), _commandBetweenCommands));
         }
 
         #endregion Private Methods

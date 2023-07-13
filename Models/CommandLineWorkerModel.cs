@@ -81,13 +81,13 @@ namespace BuilderHelperOnWPF.Models
             _commandLineBuilder.SetHeaderCommands(RestartIIS ? new string[] { IISStartString } : new string[] { });
             _commandLineBuilder.SetEndCommands(RestartIIS ? new string[] { IISStopString } : new string[] { });
 
-            if (filesPathsCopyFromTo != null) _commandLineBuilder.SetMainCommands(CommandLineHelper.FormCopingCommands("CopyCommandString ", filesPathsCopyFromTo));
+            if (filesPathsCopyFromTo != null) _commandLineBuilder.SetMainCommands(CommandLineHelper.FormCopingCommands(CopyCommandString, filesPathsCopyFromTo));
 
             _commandLineBuilder.SetCommandBetweenCommands(" *& ");
-            CommandLineTextToExecute = _commandLineBuilder.GenerateCommandLine();
+            CommandLineTextToExecute = _commandLineBuilder.GetCommand();
 
             _commandLineBuilder.SetCommandBetweenCommands("\n");
-            CommandLineTextToCopy = _commandLineBuilder.GenerateCommandLine();
+            CommandLineTextToCopy = _commandLineBuilder.GetCommand();
         }
 
         public CommandLineWorkerSettingsSave GetSave()

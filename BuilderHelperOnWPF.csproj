@@ -106,7 +106,7 @@
     <Compile Include="Interfaces\CommandLineHelper.cs" />
     <Compile Include="Interfaces\ICLCommand.cs" />
     <Compile Include="Interfaces\ISaveable.cs" />
-    <Compile Include="Models\CommandBlock.cs" />
+    <Compile Include="Models\Commands\CommandBlock.cs" />
     <Compile Include="Models\Commands\BaseCommandDecorator.cs" />
     <Compile Include="Models\Commands\BlockDecorator.cs" />
     <Compile Include="Models\Commands\CommandLineDecorator.cs" />

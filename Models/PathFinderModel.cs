@@ -90,6 +90,7 @@ namespace BuilderHelperOnWPF.Models
 
         public void LoadFromSave(PathFinderSave save)
         {
+            FilesPathsCopyFromTo = new List<(string, string)>();
             TargetFolders = save.TargetFolders;
             SourceFiles = save.SourceFiles;
             RemoveDuplicates = save.RemoveDuplicates;

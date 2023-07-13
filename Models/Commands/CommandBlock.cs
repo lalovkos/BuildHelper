@@ -1,13 +1,15 @@
 ﻿using BuilderHelperOnWPF.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BuilderHelperOnWPF.Models
 {
-    internal class CommandBlock : CommandLineElement
+    internal class CommandBlock : CommandLineElement, ICLCommand
     {
         #region Public Fields
 
-        public ICLCommand[] Commands = new ICLCommand[] { };
+        public IList<ICLCommand> Commands = new List<ICLCommand>();
         public ICLCommand СommandBetween = new BaseCommand(" ");
 
         #endregion Public Fields
@@ -19,7 +21,7 @@ namespace BuilderHelperOnWPF.Models
             СommandBetween = commandBetweenLines;
         }
 
-        public CommandBlock(ICLCommand[] commands, ICLCommand commandBetweenLines) : this(commandBetweenLines)
+        public CommandBlock(IList<ICLCommand> commands, ICLCommand commandBetweenLines) : this(commandBetweenLines)
         {
             Commands = commands;
         }
@@ -30,20 +32,27 @@ namespace BuilderHelperOnWPF.Models
 
         public override string FormCommandLine()
         {
-            if (Commands.Length > 0)
+            if (Commands.Count() > 0)
             {
                 var sb = new StringBuilder();
-                for (int i = 0; i < Commands.Length - 1; i++)
+                for (int i = 0; i < Commands.Count() - 1; i++)
                 {
-                    sb.Append(Commands[0].GetCommand() + СommandBetween.GetCommand());
+                    var command = Commands[i].GetCommand();
+                    sb.Append(command);
+                    if (command != "") sb.Append(СommandBetween.GetCommand());
                 }
-                sb.Append(Commands[Commands.Length - 1].GetCommand());
+                sb.Append(Commands[Commands.Count() - 1].GetCommand());
                 return sb.ToString();
             }
             else
             {
                 return "";
             }
+        }
+
+        public string GetCommand()
+        {
+            return FormCommandLine();
         }
 
         #endregion Public Methods
